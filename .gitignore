@@ -1,4 +1,4 @@
 .venv/
 dataset_original/
 goodreads_interactions_dedup.json.gz
-dataset/
+dataset/goodreads.db
