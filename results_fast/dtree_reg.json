@@ -1,0 +1,84 @@
+{
+  "name": "dtree_reg",
+  "family": "tree",
+  "task": "reg",
+  "fast": true,
+  "params": {
+    "selected": {
+      "max_depth": 6,
+      "min_samples_leaf": 200
+    },
+    "trials": [
+      {
+        "config": {
+          "max_depth": 6,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8793301486760825,
+        "fit_s": 1.0613164901733398,
+        "predict_val_s": 0.0011165142059326172
+      },
+      {
+        "config": {
+          "max_depth": 6,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8787849263341473,
+        "fit_s": 0.9714393615722656,
+        "predict_val_s": 0.001165628433227539
+      },
+      {
+        "config": {
+          "max_depth": 10,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.9013635033884224,
+        "fit_s": 1.4376347064971924,
+        "predict_val_s": 0.0013353824615478516
+      },
+      {
+        "config": {
+          "max_depth": 10,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8835815386819539,
+        "fit_s": 1.3160583972930908,
+        "predict_val_s": 0.0013315677642822266
+      },
+      {
+        "config": {
+          "max_depth": 14,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.9152473096765347,
+        "fit_s": 1.5272257328033447,
+        "predict_val_s": 0.0014719963073730469
+      },
+      {
+        "config": {
+          "max_depth": 14,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8836050769224397,
+        "fit_s": 1.2356793880462646,
+        "predict_val_s": 0.001542806625366211
+      }
+    ],
+    "n_train": 33505,
+    "n_features": 97
+  },
+  "fit_time_s": 0.9714393615722656,
+  "predict_time_s": 0.001165628433227539,
+  "val": {
+    "rmse": 0.8787849263341473,
+    "mae": 0.6943251111745361,
+    "ndcg@10": 0.9745462844644519
+  },
+  "test": {
+    "rmse": 0.8800564293687932,
+    "mae": 0.6927378298282844,
+    "ndcg@10": 0.974544637797818
+  },
+  "peak_rss_mb": 800.9765625,
+  "finished_at": "2026-11-02 02:02:16"
+}

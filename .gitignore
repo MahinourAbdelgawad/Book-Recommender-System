@@ -2,3 +2,6 @@
 dataset_original/
 goodreads_interactions_dedup.json.gz
 dataset/goodreads.db
+**/__pycache__/
+*.pyc
+dataset/prepared/
