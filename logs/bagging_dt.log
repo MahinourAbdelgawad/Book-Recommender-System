@@ -1,0 +1,7 @@
+[02:43:12] === bagging_dt (bagging, reg)
+[02:43:12] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:43:12] fitting {} on (670109, 97)
+[02:45:47]   fit done in 155s, predicting val
+[02:45:47]   val rmse 0.8620 (predict 1s)
+[02:45:47] best config {}, predicting test
+[02:45:48] DONE val rmse 0.8620  mae 0.6732  ndcg@10 0.8563

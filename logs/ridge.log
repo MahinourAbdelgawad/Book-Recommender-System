@@ -1,0 +1,16 @@
+[02:27:09] === ridge (linear, reg)
+[02:27:09] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:27:09] fitting {'alpha': 1} on (670109, 97)
+[02:27:10]   fit done in 0s, predicting val
+[02:27:10]   val rmse 0.8611 (predict 0s)
+[02:27:10] fitting {'alpha': 10} on (670109, 97)
+[02:27:10]   fit done in 0s, predicting val
+[02:27:10]   val rmse 0.8611 (predict 0s)
+[02:27:10] fitting {'alpha': 100} on (670109, 97)
+[02:27:10]   fit done in 0s, predicting val
+[02:27:10]   val rmse 0.8611 (predict 0s)
+[02:27:10] fitting {'alpha': 1000} on (670109, 97)
+[02:27:11]   fit done in 0s, predicting val
+[02:27:11]   val rmse 0.8611 (predict 0s)
+[02:27:11] best config {'alpha': 1}, predicting test
+[02:27:11] DONE val rmse 0.8611  mae 0.6730  ndcg@10 0.8581

@@ -1,0 +1,7 @@
+[02:34:22] === abl_hgb_full (ablation, reg)
+[02:34:22] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:34:22] fitting {} on (670109, 97)
+[02:35:07]   fit done in 45s, predicting val
+[02:35:08]   val rmse 0.8653 (predict 1s)
+[02:35:08] best config {}, predicting test
+[02:35:10] DONE val rmse 0.8653  mae 0.6781  ndcg@10 0.8565

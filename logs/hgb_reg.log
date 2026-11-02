@@ -1,0 +1,16 @@
+[02:36:37] === hgb_reg (boosting, reg)
+[02:36:37] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:36:37] fitting {'learning_rate': 0.05, 'max_leaf_nodes': 31} on (670109, 97)
+[02:37:45]   fit done in 68s, predicting val
+[02:37:47]   val rmse 0.8628 (predict 2s)
+[02:37:47] fitting {'learning_rate': 0.05, 'max_leaf_nodes': 63} on (670109, 97)
+[02:39:05]   fit done in 79s, predicting val
+[02:39:07]   val rmse 0.8670 (predict 2s)
+[02:39:07] fitting {'learning_rate': 0.1, 'max_leaf_nodes': 31} on (670109, 97)
+[02:40:10]   fit done in 62s, predicting val
+[02:40:11]   val rmse 0.8684 (predict 2s)
+[02:40:11] fitting {'learning_rate': 0.1, 'max_leaf_nodes': 63} on (670109, 97)
+[02:41:22]   fit done in 71s, predicting val
+[02:41:24]   val rmse 0.8766 (predict 2s)
+[02:41:24] best config {'learning_rate': 0.05, 'max_leaf_nodes': 31}, predicting test
+[02:41:26] DONE val rmse 0.8628  mae 0.6764  ndcg@10 0.8565

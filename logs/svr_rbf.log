@@ -1,0 +1,7 @@
+[03:03:21] === svr_rbf (svm, reg)
+[03:03:22] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[03:03:22] fitting {} on (30000, 97)
+[03:04:36]   fit done in 75s, predicting val
+[03:11:38]   val rmse 0.8850 (predict 421s)
+[03:11:38] best config {}, predicting test
+[03:18:52] DONE val rmse 0.8850  mae 0.6695  ndcg@10 0.8486

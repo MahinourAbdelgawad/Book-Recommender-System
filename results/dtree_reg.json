@@ -1,0 +1,84 @@
+{
+  "name": "dtree_reg",
+  "family": "tree",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {
+      "max_depth": 6,
+      "min_samples_leaf": 200
+    },
+    "trials": [
+      {
+        "config": {
+          "max_depth": 6,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8691106175776617,
+        "fit_s": 11.794430494308472,
+        "predict_val_s": 0.01048898696899414
+      },
+      {
+        "config": {
+          "max_depth": 6,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8690320770851336,
+        "fit_s": 11.640217065811157,
+        "predict_val_s": 0.010093212127685547
+      },
+      {
+        "config": {
+          "max_depth": 10,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8754820136258322,
+        "fit_s": 19.60109043121338,
+        "predict_val_s": 0.016273021697998047
+      },
+      {
+        "config": {
+          "max_depth": 10,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.871671715524893,
+        "fit_s": 19.273019075393677,
+        "predict_val_s": 0.016631126403808594
+      },
+      {
+        "config": {
+          "max_depth": 14,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8992735459799198,
+        "fit_s": 26.329998254776,
+        "predict_val_s": 0.023888587951660156
+      },
+      {
+        "config": {
+          "max_depth": 14,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8815361293054231,
+        "fit_s": 24.48583483695984,
+        "predict_val_s": 0.022385120391845703
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 11.640217065811157,
+  "predict_time_s": 0.010093212127685547,
+  "val": {
+    "rmse": 0.8690320770851336,
+    "mae": 0.6811108674617997,
+    "ndcg@10": 0.8485081574221123
+  },
+  "test": {
+    "rmse": 0.8669205239603917,
+    "mae": 0.6797081914508282,
+    "ndcg@10": 0.8443139113304935
+  },
+  "peak_rss_mb": 813.6796875,
+  "finished_at": "2026-11-02 02:33:43"
+}

@@ -1,0 +1,7 @@
+[02:26:58] === baseline_global_mean (baseline, reg)
+[02:26:59] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:26:59] fitting {} on (670109, 97)
+[02:26:59]   fit done in 0s, predicting val
+[02:26:59]   val rmse 0.9799 (predict 0s)
+[02:26:59] best config {}, predicting test
+[02:26:59] DONE val rmse 0.9799  mae 0.7438  ndcg@10 0.7923

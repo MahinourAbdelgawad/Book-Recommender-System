@@ -1,0 +1,66 @@
+{
+  "name": "hgb_reg",
+  "family": "boosting",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {
+      "learning_rate": 0.05,
+      "max_leaf_nodes": 31
+    },
+    "trials": [
+      {
+        "config": {
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31
+        },
+        "val_rmse": 0.8627663110852475,
+        "fit_s": 67.58788657188416,
+        "predict_val_s": 1.765110969543457
+      },
+      {
+        "config": {
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 63
+        },
+        "val_rmse": 0.8670109270846559,
+        "fit_s": 78.87299394607544,
+        "predict_val_s": 1.8958017826080322
+      },
+      {
+        "config": {
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 31
+        },
+        "val_rmse": 0.8684213341443807,
+        "fit_s": 62.36024045944214,
+        "predict_val_s": 1.7264554500579834
+      },
+      {
+        "config": {
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 63
+        },
+        "val_rmse": 0.876649377924442,
+        "fit_s": 70.89517855644226,
+        "predict_val_s": 1.7342731952667236
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 67.58788657188416,
+  "predict_time_s": 1.765110969543457,
+  "val": {
+    "rmse": 0.8627663110852475,
+    "mae": 0.6763616483072594,
+    "ndcg@10": 0.8565254893361265
+  },
+  "test": {
+    "rmse": 0.8609708786719437,
+    "mae": 0.6760294252720522,
+    "ndcg@10": 0.8532871594661539
+  },
+  "peak_rss_mb": 2055.59765625,
+  "finished_at": "2026-11-02 02:41:26"
+}

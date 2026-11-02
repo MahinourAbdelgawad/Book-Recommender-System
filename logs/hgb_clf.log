@@ -1,0 +1,7 @@
+[02:41:28] === hgb_clf (boosting, cls)
+[02:41:28] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:41:28] fitting {} on (670109, 97)
+[02:43:01]   fit done in 93s, predicting val
+[02:43:05]   val rmse 0.8661 (predict 4s)
+[02:43:05] best config {}, predicting test
+[02:43:10] DONE val rmse 0.8661  mae 0.6759  ndcg@10 0.8574

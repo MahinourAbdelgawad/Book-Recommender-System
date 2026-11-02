@@ -1,0 +1,22 @@
+[02:31:50] === dtree_reg (tree, reg)
+[02:31:50] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:31:50] fitting {'max_depth': 6, 'min_samples_leaf': 50} on (670109, 97)
+[02:32:02]   fit done in 12s, predicting val
+[02:32:02]   val rmse 0.8691 (predict 0s)
+[02:32:02] fitting {'max_depth': 6, 'min_samples_leaf': 200} on (670109, 97)
+[02:32:13]   fit done in 12s, predicting val
+[02:32:13]   val rmse 0.8690 (predict 0s)
+[02:32:13] fitting {'max_depth': 10, 'min_samples_leaf': 50} on (670109, 97)
+[02:32:33]   fit done in 20s, predicting val
+[02:32:33]   val rmse 0.8755 (predict 0s)
+[02:32:33] fitting {'max_depth': 10, 'min_samples_leaf': 200} on (670109, 97)
+[02:32:52]   fit done in 19s, predicting val
+[02:32:52]   val rmse 0.8717 (predict 0s)
+[02:32:52] fitting {'max_depth': 14, 'min_samples_leaf': 50} on (670109, 97)
+[02:33:18]   fit done in 26s, predicting val
+[02:33:18]   val rmse 0.8993 (predict 0s)
+[02:33:18] fitting {'max_depth': 14, 'min_samples_leaf': 200} on (670109, 97)
+[02:33:43]   fit done in 24s, predicting val
+[02:33:43]   val rmse 0.8815 (predict 0s)
+[02:33:43] best config {'max_depth': 6, 'min_samples_leaf': 200}, predicting test
+[02:33:43] DONE val rmse 0.8690  mae 0.6811  ndcg@10 0.8485

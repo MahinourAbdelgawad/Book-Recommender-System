@@ -1,0 +1,10 @@
+[02:27:30] === logreg (logistic, cls)
+[02:27:30] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:27:30] fitting {'C': 0.1} on (670109, 97)
+[02:28:35]   fit done in 64s, predicting val
+[02:28:35]   val rmse 0.8659 (predict 0s)
+[02:28:35] fitting {'C': 1.0} on (670109, 97)
+[02:29:30]   fit done in 56s, predicting val
+[02:29:30]   val rmse 0.8660 (predict 0s)
+[02:29:30] best config {'C': 0.1}, predicting test
+[02:29:31] DONE val rmse 0.8659  mae 0.6808  ndcg@10 0.8585

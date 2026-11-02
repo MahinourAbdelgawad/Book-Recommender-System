@@ -1,0 +1,7 @@
+[02:35:11] === abl_hgb_nosite (ablation, reg)
+[02:35:11] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:35:11] fitting {} on (670109, 92)
+[02:35:54]   fit done in 42s, predicting val
+[02:35:55]   val rmse 0.8690 (predict 1s)
+[02:35:55] best config {}, predicting test
+[02:35:56] DONE val rmse 0.8690  mae 0.6817  ndcg@10 0.8532
