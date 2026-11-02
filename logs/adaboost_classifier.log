@@ -1,0 +1,10 @@
+[16:02:59] === adaboost_classifier (boosting, cls) [FAST]
+[16:02:59] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
+[16:02:59] fitting {'max_depth': 3} on (33505, 97)
+[16:03:24]   fit done in 25s, predicting val
+[16:03:24]   val rmse 1.3570 (predict 0s)
+[16:03:24] fitting {'max_depth': 5} on (33505, 97)
+[16:04:02]   fit done in 38s, predicting val
+[16:04:02]   val rmse 1.3568 (predict 0s)
+[16:04:02] best config {'max_depth': 5}, predicting test
+[16:04:02] DONE val rmse 1.3568  mae 1.1488  ndcg@10 0.9726

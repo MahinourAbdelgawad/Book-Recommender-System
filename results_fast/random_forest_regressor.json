@@ -1,0 +1,33 @@
+{
+  "name": "random_forest_regressor",
+  "family": "random_forest",
+  "task": "reg",
+  "fast": true,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8712291189409498,
+        "fit_s": 24.307621240615845,
+        "predict_val_s": 0.08699488639831543
+      }
+    ],
+    "n_train": 33505,
+    "n_features": 97
+  },
+  "fit_time_s": 24.307621240615845,
+  "predict_time_s": 0.08699488639831543,
+  "val": {
+    "rmse": 0.8712291189409498,
+    "mae": 0.688992249885083,
+    "ndcg@10": 0.9759213398900367
+  },
+  "test": {
+    "rmse": 0.871538958795249,
+    "mae": 0.685494120672997,
+    "ndcg@10": 0.9761701415161419
+  },
+  "peak_rss_mb": 800.9375,
+  "finished_at": "2026-11-02 16:04:29"
+}

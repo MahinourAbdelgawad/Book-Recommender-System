@@ -1,17 +1,16 @@
 import time
 from functools import partial
-
+ 
 import numpy as np
 from sklearn.dummy import DummyRegressor
-from sklearn.ensemble import (BaggingRegressor, HistGradientBoostingClassifier,
-                              HistGradientBoostingRegressor, RandomForestClassifier,
-                              RandomForestRegressor)
-from sklearn.linear_model import LinearRegression, LogisticRegression, Perceptron, Ridge
+from sklearn.ensemble import (AdaBoostClassifier, AdaBoostRegressor, BaggingRegressor,
+                              RandomForestClassifier, RandomForestRegressor)
+from sklearn.linear_model import LinearRegression, LogisticRegression, Perceptron
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR, LinearSVC, LinearSVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-
+ 
 from .common import SEED, log
 
 N_JOBS = 6  
@@ -63,6 +62,16 @@ def _fit_eval(D, make, grid, kind, keep=None, drop=None, n_train=None, train_key
             "val": (best["reg_v"], best["cls_v"]), "test": (reg_t, cls_t)}
 
 
+def make_adaboost_regressor(max_depth, n_estimators=50, learning_rate=1.0):
+    return AdaBoostRegressor(estimator=DecisionTreeRegressor(max_depth=max_depth),
+                             n_estimators=n_estimators, learning_rate=learning_rate, random_state=SEED)
+
+
+def make_adaboost_classifier(max_depth, n_estimators=50, learning_rate=1.0):
+    return AdaBoostClassifier(estimator=DecisionTreeClassifier(max_depth=max_depth),
+                              n_estimators=n_estimators, learning_rate=learning_rate, random_state=SEED)
+
+
 MODELS = {}
 
 
@@ -70,57 +79,72 @@ def add(name, family, kind, make, grid=({},), **kw):
     MODELS[name] = (family, kind, partial(_fit_eval, make=make, grid=list(grid), kind=kind, **kw))
 
 
-#1) BASELINES AND LINEAR REGRESSION AND LOGISTIC REGRESSION AND NAIVE BAYES AND SVM
+_random_forest = partial(RandomForestRegressor, n_estimators=200, min_samples_leaf=20, max_features=0.33,
+                         n_jobs=N_JOBS, random_state=SEED)
+
+
+#1) BASELINES AND LINEARS
 add("baseline_global_mean", "baseline", "reg", DummyRegressor)
-add("lin_user_book_mean", "linear", "reg", LinearRegression, keep=["u_mean_rating", "b_mean_rating"])
-add("linreg", "linear", "reg", LinearRegression)
-add("ridge", "linear", "reg", Ridge, grid=[{"alpha": a} for a in (1, 10, 100, 1000)])
-add("gnb", "naive_bayes", "cls", GaussianNB)  # Gaussian assumption is wrong for one-hots; baseline only
+
+add("linear_regression_user_and_book_mean_only", "linear", "reg", LinearRegression,
+    keep=["u_mean_rating", "b_mean_rating"])
+
+add("linear_regression", "linear", "reg", LinearRegression)
+
+add("ablation_linear_regression_no_site_stats", "ablation", "reg", LinearRegression, drop=SITE_WIDE)
+
+add("ablation_linear_regression_plain_means", "ablation", "reg", LinearRegression,
+    train_key="X_train_plainmean")  
+
+add("naive_bayes_gaussian", "naive_bayes", "cls", GaussianNB) 
+
 add("perceptron", "perceptron", "cls", partial(Perceptron, max_iter=50, tol=1e-3, random_state=SEED))
-add("logreg", "logistic", "cls", partial(LogisticRegression, max_iter=300),
-    grid=[{"C": c} for c in (0.1, 1.0)])
-add("linsvr", "svm", "reg",
+
+add("logistic_regression", "logistic", "cls", partial(LogisticRegression, max_iter=300),
+    grid=[{"C": c} for c in (0.01, 0.1, 1.0)])
+
+add("svm_linear_regressor", "svm", "reg",
     partial(LinearSVR, loss="squared_epsilon_insensitive", dual=False, epsilon=0.0, max_iter=2000, random_state=SEED),
     grid=[{"C": c} for c in (0.01, 0.1)])
-add("linsvc", "svm", "cls", partial(LinearSVC, dual=False, max_iter=1000, random_state=SEED),
+
+add("svm_linear_classifier", "svm", "cls", partial(LinearSVC, dual=False, max_iter=1000, random_state=SEED),
     grid=[{"C": c} for c in (0.1,)])
 
 # ========================================
-# 2 DECISION TREE
-add("dtree_reg", "tree", "reg", partial(DecisionTreeRegressor, random_state=SEED),
-    grid=[{"max_depth": d, "min_samples_leaf": l} for d in (6, 10, 14) for l in (50, 200)])
-add("dtree_clf", "tree", "cls", partial(DecisionTreeClassifier, random_state=SEED),
+# 2 TREES AND ENSEMBLES
+add("decision_tree_regressor", "tree", "reg", partial(DecisionTreeRegressor, random_state=SEED),
+    grid=[{"max_depth": d, "min_samples_leaf": l} for d in (3, 4, 6, 10) for l in (50, 200)])
+
+add("decision_tree_classifier", "tree", "cls", partial(DecisionTreeClassifier, random_state=SEED),
     grid=[{"max_depth": d, "min_samples_leaf": 100} for d in (6, 10)])
 
-# ---------- leakage ablations (same fixed HGB config, only the feature set changes) ----------
-_hgb_fixed = partial(HistGradientBoostingRegressor, max_iter=400, learning_rate=0.1, max_leaf_nodes=31,
-                     early_stopping=True, n_iter_no_change=20, random_state=SEED)
-add("abl_hgb_full", "ablation", "reg", _hgb_fixed)
-add("abl_hgb_nosite", "ablation", "reg", _hgb_fixed, drop=SITE_WIDE)
-add("abl_hgb_plainmean", "ablation", "reg", _hgb_fixed, train_key="X_train_plainmean")  # no leave-one-out on train
-
-# ===================================================
-# 3) BOOSTING, BAGGING, AND RANDOM FOREST
-add("hgb_reg", "boosting", "reg",
-    partial(HistGradientBoostingRegressor, max_iter=600, early_stopping=True, n_iter_no_change=25, random_state=SEED),
-    grid=[{"learning_rate": lr, "max_leaf_nodes": n} for lr in (0.05, 0.1) for n in (31, 63)])
-add("hgb_clf", "boosting", "cls",
-    partial(HistGradientBoostingClassifier, max_iter=300, learning_rate=0.1, early_stopping=True,
-            n_iter_no_change=15, random_state=SEED))
-add("bagging_dt", "bagging", "reg",
+add("bagging_decision_trees_regressor", "bagging", "reg",
     partial(BaggingRegressor, estimator=DecisionTreeRegressor(max_depth=15, min_samples_leaf=20),
             n_estimators=30, max_samples=0.5, n_jobs=N_JOBS, random_state=SEED))
-add("rf_reg", "random_forest", "reg",
-    partial(RandomForestRegressor, n_estimators=200, min_samples_leaf=20, max_features=0.33,
-            n_jobs=N_JOBS, random_state=SEED))
-add("rf_clf", "random_forest", "cls",
+
+add("adaboost_regressor", "boosting", "reg", make_adaboost_regressor,
+    grid=[{"max_depth": d} for d in (3, 5)])
+
+add("adaboost_classifier", "boosting", "cls", make_adaboost_classifier,
+    grid=[{"max_depth": d} for d in (3, 5)])
+
+add("random_forest_regressor", "random_forest", "reg", _random_forest)
+
+add("ablation_random_forest_no_site_stats", "ablation", "reg", _random_forest, drop=SITE_WIDE)
+
+add("ablation_random_forest_plain_means", "ablation", "reg", _random_forest, train_key="X_train_plainmean")
+
+add("random_forest_classifier", "random_forest", "cls",
     partial(RandomForestClassifier, n_estimators=150, min_samples_leaf=20, max_features="sqrt",
             n_jobs=N_JOBS, random_state=SEED))
 
+
 # ==============================================
 # KNN AND RBF SVM
-add("knn_reg", "knn", "reg",
+add("knn_regressor", "knn", "reg",
     partial(KNeighborsRegressor, weights="distance", algorithm="brute", n_jobs=N_JOBS),
-    grid=[{"n_neighbors": k} for k in (20, 50)], n_train=150_000)
-add("svr_rbf", "svm", "reg", partial(SVR, kernel="rbf", C=1.0, epsilon=0.1, gamma="scale", cache_size=2000),
-    n_train=30_000)
+    grid=[{"n_neighbors": k} for k in (20, 50)])
+
+
+add("svm_rbf_kernel_regressor", "svm", "reg",
+    partial(SVR, kernel="rbf", C=1.0, epsilon=0.1, gamma="scale", cache_size=2000, verbose=True))

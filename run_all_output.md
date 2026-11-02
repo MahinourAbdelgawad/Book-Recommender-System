@@ -1,4 +1,4 @@
-=== VAL results (21 experiments), sorted by RMSE ===
+=== VAL results (21 models), sorted by RMSE ===
                 name        family task   rmse    mae  ndcg@10    acc  f1_macro  fit_min   pred_s  n_train  peak_gb
               rf_reg random_forest  reg 0.8604 0.6705   0.8568    NaN       NaN  10.1623   2.2137   670109   1.3440
    abl_hgb_plainmean      ablation  reg 0.8608 0.6692   0.8571    NaN       NaN   0.5836   0.9268   670109   1.9193

@@ -1,0 +1,7 @@
+[16:00:12] === linear_regression_user_and_book_mean_only (linear, reg) [FAST]
+[16:00:13] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
+[16:00:13] fitting {} on (33505, 2)
+[16:00:13]   fit done in 0s, predicting val
+[16:00:13]   val rmse 0.8745 (predict 0s)
+[16:00:13] best config {}, predicting test
+[16:00:13] DONE val rmse 0.8745  mae 0.6858  ndcg@10 0.9758

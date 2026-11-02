@@ -26,7 +26,7 @@ if not rows:
 df = pd.DataFrame(rows).sort_values("rmse")
 df.to_csv(root / f"summary_{split}.csv", index=False)
 pd.set_option("display.width", 220, "display.max_columns", 20, "display.max_colwidth", 60)
-print(f"\n=== {split.upper()} results ({len(df)} experiments), sorted by RMSE ===")
+print(f"\n=== {split.upper()} results ({len(df)} models), sorted by RMSE ===")
 print(df.drop(columns="best_cfg").round(4).to_string(index=False))
 failed = [p.stem for p in root.glob("*.FAILED")]
 if failed:

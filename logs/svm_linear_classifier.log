@@ -1,0 +1,7 @@
+[16:01:38] === svm_linear_classifier (svm, cls) [FAST]
+[16:01:39] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
+[16:01:39] fitting {'C': 0.1} on (33505, 97)
+[16:01:45]   fit done in 6s, predicting val
+[16:01:45]   val rmse 1.0497 (predict 0s)
+[16:01:45] best config {'C': 0.1}, predicting test
+[16:01:45] DONE val rmse 1.0497  mae 0.6945  ndcg@10 0.9687

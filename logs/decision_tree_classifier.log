@@ -1,0 +1,10 @@
+[16:01:56] === decision_tree_classifier (tree, cls) [FAST]
+[16:01:56] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
+[16:01:56] fitting {'max_depth': 6, 'min_samples_leaf': 100} on (33505, 97)
+[16:01:57]   fit done in 1s, predicting val
+[16:01:57]   val rmse 0.8921 (predict 0s)
+[16:01:57] fitting {'max_depth': 10, 'min_samples_leaf': 100} on (33505, 97)
+[16:01:59]   fit done in 1s, predicting val
+[16:01:59]   val rmse 0.8905 (predict 0s)
+[16:01:59] best config {'max_depth': 10, 'min_samples_leaf': 100}, predicting test
+[16:01:59] DONE val rmse 0.8905  mae 0.6970  ndcg@10 0.9739

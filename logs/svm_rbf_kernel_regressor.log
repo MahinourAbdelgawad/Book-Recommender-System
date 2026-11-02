@@ -1,0 +1,11 @@
+[16:05:35] === svm_rbf_kernel_regressor (svm, reg) [FAST]
+[16:05:36] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
+[16:05:36] fitting {} on (33505, 97)
+[LibSVM]................................*..........*.*
+optimization finished, #iter = 43147
+obj = -17118.930034, rho = -4.078903
+nSV = 29848, nBSV = 25902
+[16:07:28]   fit done in 112s, predicting val
+[16:07:59]   val rmse 0.8908 (predict 31s)
+[16:07:59] best config {}, predicting test
+[16:08:33] DONE val rmse 0.8908  mae 0.6790  ndcg@10 0.9734

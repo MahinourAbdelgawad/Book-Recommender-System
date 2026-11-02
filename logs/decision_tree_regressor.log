@@ -1,0 +1,28 @@
+[16:01:47] === decision_tree_regressor (tree, reg) [FAST]
+[16:01:47] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
+[16:01:47] fitting {'max_depth': 3, 'min_samples_leaf': 50} on (33505, 97)
+[16:01:48]   fit done in 0s, predicting val
+[16:01:48]   val rmse 0.8979 (predict 0s)
+[16:01:48] fitting {'max_depth': 3, 'min_samples_leaf': 200} on (33505, 97)
+[16:01:48]   fit done in 0s, predicting val
+[16:01:48]   val rmse 0.8979 (predict 0s)
+[16:01:48] fitting {'max_depth': 4, 'min_samples_leaf': 50} on (33505, 97)
+[16:01:49]   fit done in 1s, predicting val
+[16:01:49]   val rmse 0.8880 (predict 0s)
+[16:01:49] fitting {'max_depth': 4, 'min_samples_leaf': 200} on (33505, 97)
+[16:01:50]   fit done in 1s, predicting val
+[16:01:50]   val rmse 0.8880 (predict 0s)
+[16:01:50] fitting {'max_depth': 6, 'min_samples_leaf': 50} on (33505, 97)
+[16:01:50]   fit done in 1s, predicting val
+[16:01:50]   val rmse 0.8793 (predict 0s)
+[16:01:50] fitting {'max_depth': 6, 'min_samples_leaf': 200} on (33505, 97)
+[16:01:51]   fit done in 1s, predicting val
+[16:01:51]   val rmse 0.8788 (predict 0s)
+[16:01:51] fitting {'max_depth': 10, 'min_samples_leaf': 50} on (33505, 97)
+[16:01:53]   fit done in 1s, predicting val
+[16:01:53]   val rmse 0.9014 (predict 0s)
+[16:01:53] fitting {'max_depth': 10, 'min_samples_leaf': 200} on (33505, 97)
+[16:01:54]   fit done in 1s, predicting val
+[16:01:54]   val rmse 0.8836 (predict 0s)
+[16:01:54] best config {'max_depth': 6, 'min_samples_leaf': 200}, predicting test
+[16:01:54] DONE val rmse 0.8788  mae 0.6943  ndcg@10 0.9745
