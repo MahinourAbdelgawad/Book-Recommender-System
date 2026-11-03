@@ -1,0 +1,33 @@
+{
+  "name": "ablation_linear_regression_no_site_stats",
+  "family": "ablation",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8635653257369995,
+        "fit_s": 3.515533685684204,
+        "predict_val_s": 0.04504036903381348
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 92
+  },
+  "fit_time_s": 3.515533685684204,
+  "predict_time_s": 0.04504036903381348,
+  "val": {
+    "rmse": 0.863565331169935,
+    "mae": 0.6753355677153503,
+    "ndcg@10": 0.8562056384770463
+  },
+  "test": {
+    "rmse": 0.8616918895780281,
+    "mae": 0.6741726818308289,
+    "ndcg@10": 0.8516574192733052
+  },
+  "peak_rss_mb": 1610.48046875,
+  "finished_at": "2026-11-03 02:34:38"
+}

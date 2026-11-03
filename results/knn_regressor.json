@@ -1,0 +1,45 @@
+{
+  "name": "knn_regressor",
+  "family": "knn",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {
+      "n_neighbors": 50
+    },
+    "trials": [
+      {
+        "config": {
+          "n_neighbors": 20
+        },
+        "val_rmse": 0.8900880180853473,
+        "fit_s": 0.12742900848388672,
+        "predict_val_s": 389.54305624961853
+      },
+      {
+        "config": {
+          "n_neighbors": 50
+        },
+        "val_rmse": 0.8802915351333682,
+        "fit_s": 0.1358780860900879,
+        "predict_val_s": 394.08630776405334
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 0.1358780860900879,
+  "predict_time_s": 394.08630776405334,
+  "val": {
+    "rmse": 0.8802915351333682,
+    "mae": 0.6960379425773895,
+    "ndcg@10": 0.8545317184720882
+  },
+  "test": {
+    "rmse": 0.8786524185697132,
+    "mae": 0.6952243752442469,
+    "ndcg@10": 0.8506350597903054
+  },
+  "peak_rss_mb": 1521.4609375,
+  "finished_at": "2026-11-03 03:57:32"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "bagging_decision_trees_regressor",
+  "family": "bagging",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8620106353791508,
+        "fit_s": 154.7730028629303,
+        "predict_val_s": 0.5350549221038818
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 154.7730028629303,
+  "predict_time_s": 0.5350549221038818,
+  "val": {
+    "rmse": 0.8620106353791508,
+    "mae": 0.6732023038199816,
+    "ndcg@10": 0.8562995462051256
+  },
+  "test": {
+    "rmse": 0.8595133259690337,
+    "mae": 0.6718806164105928,
+    "ndcg@10": 0.8522187847649955
+  },
+  "peak_rss_mb": 870.63671875,
+  "finished_at": "2026-11-03 02:45:08"
+}

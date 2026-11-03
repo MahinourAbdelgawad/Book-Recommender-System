@@ -1,10 +1,10 @@
-[16:01:34] === svm_linear_regressor (svm, reg) [FAST]
-[16:01:34] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:01:34] fitting {'C': 0.01} on (33505, 97)
-[16:01:35]   fit done in 1s, predicting val
-[16:01:35]   val rmse 0.8699 (predict 0s)
-[16:01:35] fitting {'C': 0.1} on (33505, 97)
-[16:01:36]   fit done in 1s, predicting val
-[16:01:36]   val rmse 0.8696 (predict 0s)
-[16:01:36] best config {'C': 0.1}, predicting test
-[16:01:36] DONE val rmse 0.8696  mae 0.6830  ndcg@10 0.9759
+[02:38:08] === svm_linear_regressor (svm, reg)
+[02:38:09] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:38:09] fitting {'C': 0.01} on (670109, 97)
+[02:38:21]   fit done in 13s, predicting val
+[02:38:21]   val rmse 0.8611 (predict 0s)
+[02:38:21] fitting {'C': 0.1} on (670109, 97)
+[02:38:34]   fit done in 13s, predicting val
+[02:38:34]   val rmse 0.8611 (predict 0s)
+[02:38:34] best config {'C': 0.1}, predicting test
+[02:38:34] DONE val rmse 0.8611  mae 0.6730  ndcg@10 0.8582

@@ -1,0 +1,33 @@
+{
+  "name": "ablation_random_forest_plain_means",
+  "family": "ablation",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8611176186948211,
+        "fit_s": 592.1968770027161,
+        "predict_val_s": 2.1815402507781982
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 592.1968770027161,
+  "predict_time_s": 2.1815402507781982,
+  "val": {
+    "rmse": 0.8611176186948211,
+    "mae": 0.6694170534272892,
+    "ndcg@10": 0.856657762905194
+  },
+  "test": {
+    "rmse": 0.8590137347695164,
+    "mae": 0.6680260593232672,
+    "ndcg@10": 0.853311596435489
+  },
+  "peak_rss_mb": 1380.8984375,
+  "finished_at": "2026-11-03 03:35:00"
+}

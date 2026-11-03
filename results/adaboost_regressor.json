@@ -1,0 +1,45 @@
+{
+  "name": "adaboost_regressor",
+  "family": "boosting",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {
+      "max_depth": 3
+    },
+    "trials": [
+      {
+        "config": {
+          "max_depth": 3
+        },
+        "val_rmse": 0.9037414513078815,
+        "fit_s": 80.94365763664246,
+        "predict_val_s": 0.11944055557250977
+      },
+      {
+        "config": {
+          "max_depth": 5
+        },
+        "val_rmse": 0.9392495220162065,
+        "fit_s": 243.91711926460266,
+        "predict_val_s": 0.23592901229858398
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 80.94365763664246,
+  "predict_time_s": 0.11944055557250977,
+  "val": {
+    "rmse": 0.9037414513078815,
+    "mae": 0.7350559080764056,
+    "ndcg@10": 0.8369673156983436
+  },
+  "test": {
+    "rmse": 0.901657777273766,
+    "mae": 0.7338714645521077,
+    "ndcg@10": 0.833245249358664
+  },
+  "peak_rss_mb": 1098.453125,
+  "finished_at": "2026-11-03 02:50:36"
+}

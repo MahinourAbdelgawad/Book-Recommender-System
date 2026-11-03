@@ -1,7 +1,7 @@
-[16:05:21] === random_forest_classifier (random_forest, cls) [FAST]
-[16:05:21] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:05:21] fitting {} on (33505, 97)
-[16:05:27]   fit done in 6s, predicting val
-[16:05:27]   val rmse 0.8910 (predict 0s)
-[16:05:27] best config {}, predicting test
-[16:05:28] DONE val rmse 0.8910  mae 0.7090  ndcg@10 0.9753
+[03:35:02] === random_forest_classifier (random_forest, cls)
+[03:35:02] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[03:35:02] fitting {} on (670109, 97)
+[03:37:29]   fit done in 147s, predicting val
+[03:37:33]   val rmse 0.8700 (predict 4s)
+[03:37:33] best config {}, predicting test
+[03:37:37] DONE val rmse 0.8700  mae 0.6872  ndcg@10 0.8573

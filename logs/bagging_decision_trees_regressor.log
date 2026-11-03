@@ -1,7 +1,7 @@
-[16:02:01] === bagging_decision_trees_regressor (bagging, reg) [FAST]
-[16:02:01] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:02:01] fitting {} on (33505, 97)
-[16:02:13]   fit done in 11s, predicting val
-[16:02:13]   val rmse 0.8744 (predict 0s)
-[16:02:13] best config {}, predicting test
-[16:02:13] DONE val rmse 0.8744  mae 0.6890  ndcg@10 0.9746
+[02:42:32] === bagging_decision_trees_regressor (bagging, reg)
+[02:42:32] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:42:32] fitting {} on (670109, 97)
+[02:45:06]   fit done in 155s, predicting val
+[02:45:07]   val rmse 0.8620 (predict 1s)
+[02:45:07] best config {}, predicting test
+[02:45:08] DONE val rmse 0.8620  mae 0.6732  ndcg@10 0.8563

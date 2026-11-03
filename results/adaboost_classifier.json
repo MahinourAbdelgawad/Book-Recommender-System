@@ -1,0 +1,53 @@
+{
+  "name": "adaboost_classifier",
+  "family": "boosting",
+  "task": "cls",
+  "fast": false,
+  "params": {
+    "selected": {
+      "max_depth": 3
+    },
+    "trials": [
+      {
+        "config": {
+          "max_depth": 3
+        },
+        "val_rmse": 1.3476950649774277,
+        "fit_s": 319.65513825416565,
+        "predict_val_s": 1.1839723587036133
+      },
+      {
+        "config": {
+          "max_depth": 5
+        },
+        "val_rmse": 1.348126278433481,
+        "fit_s": 539.082138299942,
+        "predict_val_s": 1.3141613006591797
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 319.65513825416565,
+  "predict_time_s": 1.1839723587036133,
+  "val": {
+    "rmse": 1.3476950649774277,
+    "mae": 1.1376665243306998,
+    "ndcg@10": 0.8476630548399475,
+    "accuracy": 0.46043030740206414,
+    "f1_macro": 0.3107269241271818,
+    "precision_macro": 0.3592008425699161,
+    "recall_macro": 0.30608983305912696
+  },
+  "test": {
+    "rmse": 1.3476561552893431,
+    "mae": 1.137000266071364,
+    "ndcg@10": 0.842327943030047,
+    "accuracy": 0.4608112290901261,
+    "f1_macro": 0.3103377656100373,
+    "precision_macro": 0.36078360229218404,
+    "recall_macro": 0.3055557651434463
+  },
+  "peak_rss_mb": 848.18359375,
+  "finished_at": "2026-11-03 03:05:00"
+}

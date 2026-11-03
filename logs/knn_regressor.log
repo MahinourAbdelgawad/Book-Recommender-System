@@ -1,10 +1,10 @@
-[16:05:30] === knn_regressor (knn, reg) [FAST]
-[16:05:30] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:05:30] fitting {'n_neighbors': 20} on (33505, 97)
-[16:05:30]   fit done in 0s, predicting val
-[16:05:31]   val rmse 0.9107 (predict 1s)
-[16:05:31] fitting {'n_neighbors': 50} on (33505, 97)
-[16:05:31]   fit done in 0s, predicting val
-[16:05:32]   val rmse 0.9007 (predict 1s)
-[16:05:32] best config {'n_neighbors': 50}, predicting test
-[16:05:33] DONE val rmse 0.9007  mae 0.7141  ndcg@10 0.9736
+[03:37:39] === knn_regressor (knn, reg)
+[03:37:39] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[03:37:39] fitting {'n_neighbors': 20} on (670109, 97)
+[03:37:39]   fit done in 0s, predicting val
+[03:44:09]   val rmse 0.8901 (predict 390s)
+[03:44:09] fitting {'n_neighbors': 50} on (670109, 97)
+[03:44:09]   fit done in 0s, predicting val
+[03:50:43]   val rmse 0.8803 (predict 394s)
+[03:50:43] best config {'n_neighbors': 50}, predicting test
+[03:57:32] DONE val rmse 0.8803  mae 0.6960  ndcg@10 0.8545

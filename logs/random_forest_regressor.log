@@ -1,7 +1,7 @@
-[16:04:04] === random_forest_regressor (random_forest, reg) [FAST]
-[16:04:05] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:04:05] fitting {} on (33505, 97)
-[16:04:29]   fit done in 24s, predicting val
-[16:04:29]   val rmse 0.8712 (predict 0s)
-[16:04:29] best config {}, predicting test
-[16:04:29] DONE val rmse 0.8712  mae 0.6890  ndcg@10 0.9759
+[03:05:02] === random_forest_regressor (random_forest, reg)
+[03:05:02] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[03:05:02] fitting {} on (670109, 97)
+[03:15:11]   fit done in 609s, predicting val
+[03:15:13]   val rmse 0.8604 (predict 2s)
+[03:15:13] best config {}, predicting test
+[03:15:16] DONE val rmse 0.8604  mae 0.6705  ndcg@10 0.8568

@@ -1,7 +1,7 @@
-[16:00:25] === naive_bayes_gaussian (naive_bayes, cls) [FAST]
-[16:00:26] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:00:26] fitting {} on (33505, 97)
-[16:00:26]   fit done in 0s, predicting val
-[16:00:26]   val rmse 3.0599 (predict 0s)
-[16:00:26] best config {}, predicting test
-[16:00:26] DONE val rmse 3.0599  mae 2.8667  ndcg@10 0.9657
+[02:34:45] === naive_bayes_gaussian (naive_bayes, cls)
+[02:34:45] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:34:45] fitting {} on (670109, 97)
+[02:34:46]   fit done in 1s, predicting val
+[02:34:46]   val rmse 1.3457 (predict 0s)
+[02:34:46] best config {}, predicting test
+[02:34:47] DONE val rmse 1.3457  mae 1.0000  ndcg@10 0.8308

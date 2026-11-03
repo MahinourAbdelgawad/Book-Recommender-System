@@ -1,13 +1,13 @@
-[16:00:31] === logistic_regression (logistic, cls) [FAST]
-[16:00:32] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:00:32] fitting {'C': 0.01} on (33505, 97)
-[16:00:46]   fit done in 14s, predicting val
-[16:00:46]   val rmse 0.8721 (predict 0s)
-[16:00:46] fitting {'C': 0.1} on (33505, 97)
-[16:01:07]   fit done in 21s, predicting val
-[16:01:07]   val rmse 0.8723 (predict 0s)
-[16:01:07] fitting {'C': 1.0} on (33505, 97)
-[16:01:31]   fit done in 25s, predicting val
-[16:01:31]   val rmse 0.8724 (predict 0s)
-[16:01:31] best config {'C': 0.01}, predicting test
-[16:01:32] DONE val rmse 0.8721  mae 0.6892  ndcg@10 0.9761
+[02:35:03] === logistic_regression (logistic, cls)
+[02:35:03] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:35:03] fitting {'C': 0.01} on (670109, 97)
+[02:36:09]   fit done in 66s, predicting val
+[02:36:09]   val rmse 0.8658 (predict 0s)
+[02:36:09] fitting {'C': 0.1} on (670109, 97)
+[02:37:11]   fit done in 62s, predicting val
+[02:37:11]   val rmse 0.8659 (predict 0s)
+[02:37:11] fitting {'C': 1.0} on (670109, 97)
+[02:38:06]   fit done in 55s, predicting val
+[02:38:06]   val rmse 0.8660 (predict 0s)
+[02:38:06] best config {'C': 0.01}, predicting test
+[02:38:07] DONE val rmse 0.8658  mae 0.6808  ndcg@10 0.8584

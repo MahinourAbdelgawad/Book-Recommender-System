@@ -1,0 +1,33 @@
+{
+  "name": "linear_regression_user_and_book_mean_only",
+  "family": "linear",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8662704229354858,
+        "fit_s": 0.04781055450439453,
+        "predict_val_s": 0.0007300376892089844
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 2
+  },
+  "fit_time_s": 0.04781055450439453,
+  "predict_time_s": 0.0007300376892089844,
+  "val": {
+    "rmse": 0.8662704089375771,
+    "mae": 0.6777992559787688,
+    "ndcg@10": 0.8525600103953227
+  },
+  "test": {
+    "rmse": 0.8638510896946493,
+    "mae": 0.676254270880721,
+    "ndcg@10": 0.8478104564633837
+  },
+  "peak_rss_mb": 818.98828125,
+  "finished_at": "2026-11-03 02:34:26"
+}

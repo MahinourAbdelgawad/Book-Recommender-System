@@ -1,0 +1,33 @@
+{
+  "name": "ablation_random_forest_no_site_stats",
+  "family": "ablation",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8625211069737134,
+        "fit_s": 578.4450976848602,
+        "predict_val_s": 2.112470865249634
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 92
+  },
+  "fit_time_s": 578.4450976848602,
+  "predict_time_s": 2.112470865249634,
+  "val": {
+    "rmse": 0.8625211069737134,
+    "mae": 0.6726673547629962,
+    "ndcg@10": 0.8549210787157007
+  },
+  "test": {
+    "rmse": 0.8602298103285256,
+    "mae": 0.6716798651481155,
+    "ndcg@10": 0.8507902690009217
+  },
+  "peak_rss_mb": 1715.3125,
+  "finished_at": "2026-11-03 03:25:01"
+}

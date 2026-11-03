@@ -1,7 +1,7 @@
-[16:00:28] === perceptron (perceptron, cls) [FAST]
-[16:00:29] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:00:29] fitting {} on (33505, 97)
-[16:00:29]   fit done in 1s, predicting val
-[16:00:29]   val rmse 1.1968 (predict 0s)
-[16:00:29] best config {}, predicting test
-[16:00:29] DONE val rmse 1.1968  mae 0.8403  ndcg@10 0.9678
+[02:34:49] === perceptron (perceptron, cls)
+[02:34:49] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:34:49] fitting {} on (670109, 97)
+[02:35:00]   fit done in 12s, predicting val
+[02:35:00]   val rmse 1.2158 (predict 0s)
+[02:35:00] best config {}, predicting test
+[02:35:01] DONE val rmse 1.2158  mae 0.8531  ndcg@10 0.8088

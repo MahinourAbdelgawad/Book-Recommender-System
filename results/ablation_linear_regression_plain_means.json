@@ -1,0 +1,33 @@
+{
+  "name": "ablation_linear_regression_plain_means",
+  "family": "ablation",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8661807179450989,
+        "fit_s": 3.503774881362915,
+        "predict_val_s": 0.03305864334106445
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 3.503774881362915,
+  "predict_time_s": 0.03305864334106445,
+  "val": {
+    "rmse": 0.8661806655231753,
+    "mae": 0.6746192739139769,
+    "ndcg@10": 0.8551204707427249
+  },
+  "test": {
+    "rmse": 0.8640530734380714,
+    "mae": 0.6734339016201002,
+    "ndcg@10": 0.8508168628748053
+  },
+  "peak_rss_mb": 1298.04296875,
+  "finished_at": "2026-11-03 02:34:44"
+}

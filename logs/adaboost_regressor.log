@@ -1,10 +1,10 @@
-[16:02:15] === adaboost_regressor (boosting, reg) [FAST]
-[16:02:16] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:02:16] fitting {'max_depth': 3} on (33505, 97)
-[16:02:24]   fit done in 7s, predicting val
-[16:02:24]   val rmse 0.9298 (predict 0s)
-[16:02:24] fitting {'max_depth': 5} on (33505, 97)
-[16:02:57]   fit done in 33s, predicting val
-[16:02:57]   val rmse 0.9890 (predict 0s)
-[16:02:57] best config {'max_depth': 3}, predicting test
-[16:02:57] DONE val rmse 0.9298  mae 0.7696  ndcg@10 0.9736
+[02:45:10] === adaboost_regressor (boosting, reg)
+[02:45:10] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[02:45:10] fitting {'max_depth': 3} on (670109, 97)
+[02:46:31]   fit done in 81s, predicting val
+[02:46:31]   val rmse 0.9037 (predict 0s)
+[02:46:31] fitting {'max_depth': 5} on (670109, 97)
+[02:50:35]   fit done in 244s, predicting val
+[02:50:35]   val rmse 0.9392 (predict 0s)
+[02:50:35] best config {'max_depth': 3}, predicting test
+[02:50:36] DONE val rmse 0.9037  mae 0.7351  ndcg@10 0.8370

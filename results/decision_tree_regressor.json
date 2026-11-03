@@ -1,0 +1,102 @@
+{
+  "name": "decision_tree_regressor",
+  "family": "tree",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {
+      "max_depth": 6,
+      "min_samples_leaf": 200
+    },
+    "trials": [
+      {
+        "config": {
+          "max_depth": 3,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8858254194570758,
+        "fit_s": 5.664423942565918,
+        "predict_val_s": 0.0080413818359375
+      },
+      {
+        "config": {
+          "max_depth": 3,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8858254194570758,
+        "fit_s": 5.652442216873169,
+        "predict_val_s": 0.007611989974975586
+      },
+      {
+        "config": {
+          "max_depth": 4,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8769847428759375,
+        "fit_s": 7.772960186004639,
+        "predict_val_s": 0.008126497268676758
+      },
+      {
+        "config": {
+          "max_depth": 4,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8769847428759375,
+        "fit_s": 7.5822038650512695,
+        "predict_val_s": 0.007972002029418945
+      },
+      {
+        "config": {
+          "max_depth": 6,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8691106175776617,
+        "fit_s": 11.559384822845459,
+        "predict_val_s": 0.008980751037597656
+      },
+      {
+        "config": {
+          "max_depth": 6,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.8690320770851336,
+        "fit_s": 11.694355726242065,
+        "predict_val_s": 0.00967264175415039
+      },
+      {
+        "config": {
+          "max_depth": 10,
+          "min_samples_leaf": 50
+        },
+        "val_rmse": 0.8754820136258322,
+        "fit_s": 19.54042935371399,
+        "predict_val_s": 0.015504121780395508
+      },
+      {
+        "config": {
+          "max_depth": 10,
+          "min_samples_leaf": 200
+        },
+        "val_rmse": 0.871671715524893,
+        "fit_s": 19.281190395355225,
+        "predict_val_s": 0.015597105026245117
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 11.694355726242065,
+  "predict_time_s": 0.00967264175415039,
+  "val": {
+    "rmse": 0.8690320770851336,
+    "mae": 0.6811108674617997,
+    "ndcg@10": 0.8485081574221123
+  },
+  "test": {
+    "rmse": 0.8669205239603917,
+    "mae": 0.6797081914508282,
+    "ndcg@10": 0.8443139113304935
+  },
+  "peak_rss_mb": 813.890625,
+  "finished_at": "2026-11-03 02:41:53"
+}

@@ -10,6 +10,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR, LinearSVC, LinearSVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.neural_network import MLPClassifier, MLPRegressor
  
 from .common import SEED, log
 
@@ -148,3 +149,17 @@ add("knn_regressor", "knn", "reg",
 
 add("svm_rbf_kernel_regressor", "svm", "reg",
     partial(SVR, kernel="rbf", C=1.0, epsilon=0.1, gamma="scale", cache_size=2000, verbose=True))
+
+
+
+# neural netowrks
+add("neural_network_regressor", "neural_network", "reg",
+    partial(MLPRegressor, batch_size=512, max_iter=60, early_stopping=True, n_iter_no_change=5,
+            verbose=True, random_state=SEED),
+    grid=[{"hidden_layer_sizes": (128, 64), "alpha": 1e-4},
+          {"hidden_layer_sizes": (256, 128, 64), "alpha": 1e-3}])
+
+add("neural_network_classifier", "neural_network", "cls",
+    partial(MLPClassifier, batch_size=512, max_iter=60, early_stopping=True, n_iter_no_change=5,
+            verbose=True, random_state=SEED),
+    grid=[{"hidden_layer_sizes": (128, 64), "alpha": 1e-4}])

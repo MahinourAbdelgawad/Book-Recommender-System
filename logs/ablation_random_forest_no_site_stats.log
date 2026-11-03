@@ -1,7 +1,7 @@
-[16:04:31] === ablation_random_forest_no_site_stats (ablation, reg) [FAST]
-[16:04:32] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:04:32] fitting {} on (33505, 92)
-[16:04:52]   fit done in 20s, predicting val
-[16:04:52]   val rmse 0.8733 (predict 0s)
-[16:04:52] best config {}, predicting test
-[16:04:53] DONE val rmse 0.8733  mae 0.6909  ndcg@10 0.9754
+[03:15:18] === ablation_random_forest_no_site_stats (ablation, reg)
+[03:15:18] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[03:15:18] fitting {} on (670109, 92)
+[03:24:56]   fit done in 578s, predicting val
+[03:24:58]   val rmse 0.8625 (predict 2s)
+[03:24:58] best config {}, predicting test
+[03:25:01] DONE val rmse 0.8625  mae 0.6727  ndcg@10 0.8549

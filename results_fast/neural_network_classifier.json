@@ -1,0 +1,53 @@
+{
+  "name": "neural_network_classifier",
+  "family": "neural_network",
+  "task": "cls",
+  "fast": true,
+  "params": {
+    "selected": {
+      "hidden_layer_sizes": [
+        128,
+        64
+      ],
+      "alpha": 0.0001
+    },
+    "trials": [
+      {
+        "config": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "alpha": 0.0001
+        },
+        "val_rmse": 0.8698148116101524,
+        "fit_s": 3.186091423034668,
+        "predict_val_s": 0.01961803436279297
+      }
+    ],
+    "n_train": 33505,
+    "n_features": 97
+  },
+  "fit_time_s": 3.186091423034668,
+  "predict_time_s": 0.01961803436279297,
+  "val": {
+    "rmse": 0.8698148116101524,
+    "mae": 0.6801520491744181,
+    "ndcg@10": 0.9764694583125573,
+    "accuracy": 0.4754439511653718,
+    "f1_macro": 0.2942957228986714,
+    "precision_macro": 0.37481234746086745,
+    "recall_macro": 0.29799179624865
+  },
+  "test": {
+    "rmse": 0.8691533396351373,
+    "mae": 0.6743891640192036,
+    "ndcg@10": 0.9766469738587124,
+    "accuracy": 0.48398384925975774,
+    "f1_macro": 0.2980538455739269,
+    "precision_macro": 0.3749260960257093,
+    "recall_macro": 0.3023017848643691
+  },
+  "peak_rss_mb": 800.53125,
+  "finished_at": "2026-11-03 19:51:52"
+}

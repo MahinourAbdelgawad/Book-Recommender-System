@@ -1,0 +1,59 @@
+{
+  "name": "neural_network_regressor",
+  "family": "neural_network",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {
+      "hidden_layer_sizes": [
+        256,
+        128,
+        64
+      ],
+      "alpha": 0.001
+    },
+    "trials": [
+      {
+        "config": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "alpha": 0.0001
+        },
+        "val_rmse": 0.8584921956062317,
+        "fit_s": 72.1013491153717,
+        "predict_val_s": 0.16552114486694336
+      },
+      {
+        "config": {
+          "hidden_layer_sizes": [
+            256,
+            128,
+            64
+          ],
+          "alpha": 0.001
+        },
+        "val_rmse": 0.85733562707901,
+        "fit_s": 186.2174232006073,
+        "predict_val_s": 0.39067649841308594
+      }
+    ],
+    "n_train": 670109,
+    "n_features": 97
+  },
+  "fit_time_s": 186.2174232006073,
+  "predict_time_s": 0.39067649841308594,
+  "val": {
+    "rmse": 0.8573355954567966,
+    "mae": 0.6727349571772057,
+    "ndcg@10": 0.8596273582803472
+  },
+  "test": {
+    "rmse": 0.8563183708535154,
+    "mae": 0.67221537769071,
+    "ndcg@10": 0.8553660901711059
+  },
+  "peak_rss_mb": 1292.95703125,
+  "finished_at": "2026-11-03 19:56:30"
+}

@@ -1,7 +1,7 @@
-[16:04:54] === ablation_random_forest_plain_means (ablation, reg) [FAST]
-[16:04:55] data loaded: train (33505, 97), val (7208, 97), test (7430, 97)
-[16:04:55] fitting {} on (33505, 97)
-[16:05:19]   fit done in 23s, predicting val
-[16:05:19]   val rmse 0.8733 (predict 0s)
-[16:05:19] best config {}, predicting test
-[16:05:19] DONE val rmse 0.8733  mae 0.6868  ndcg@10 0.9753
+[03:25:03] === ablation_random_forest_plain_means (ablation, reg)
+[03:25:03] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
+[03:25:03] fitting {} on (670109, 97)
+[03:34:55]   fit done in 592s, predicting val
+[03:34:57]   val rmse 0.8611 (predict 2s)
+[03:34:57] best config {}, predicting test
+[03:35:00] DONE val rmse 0.8611  mae 0.6694  ndcg@10 0.8567
