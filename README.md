@@ -47,16 +47,9 @@ The notebooks in `data_preparation/` are the preprocessing and feature-engineeri
 
 ### Output of this phase
 
-The cleaned dataset and model-ready feature matrices are stored under `dataset/` and `dataset/prepared/`.
+The cleaned dataset is `dataset/cleaned_dataset.parquet` 
 
-Essential files include:
 
-- `dataset/cleaned_dataset.parquet` — cleaned and merged data table
-- `dataset/prepared/X_train.npy`, `X_val.npy`, `X_test.npy` — feature matrices
-- `dataset/prepared/y_train.npy`, `y_val.npy`, `y_test.npy` — rating targets
-- `dataset/prepared/uid_*.npy` and `bid_*.npy` — user/book IDs for evaluation and re-ranking
-- `dataset/prepared/feature_names.json` — model feature names
-- `dataset/prepared/audit.json` — dataset statistics and validation checks
 
 ## 3) Phase III: Training / Model Evaluation
 
@@ -64,7 +57,7 @@ This is pilot study and training phase. It is controlled by the Python scripts i
 
 
 #### `scripts/prepare_data.py`
-This is the script that prepared the model-ready training files for all later training runs.
+This is the script that prepared the model-ready training files for all later training runs. Found under `dataset/prepared/` 
 
 #### `scripts/common.py`
 This file contains the shared helpers used by all training scripts.
