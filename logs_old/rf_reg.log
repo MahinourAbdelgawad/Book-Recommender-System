@@ -1,7 +1,0 @@
-[02:45:50] === rf_reg (random_forest, reg)
-[02:45:50] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
-[02:45:50] fitting {} on (670109, 97)
-[02:56:00]   fit done in 610s, predicting val
-[02:56:02]   val rmse 0.8604 (predict 2s)
-[02:56:02] best config {}, predicting test
-[02:56:05] DONE val rmse 0.8604  mae 0.6705  ndcg@10 0.8568

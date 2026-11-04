@@ -1,7 +1,0 @@
-[02:30:00] === linsvc (svm, cls)
-[02:30:00] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
-[02:30:00] fitting {'C': 0.1} on (670109, 97)
-[02:31:47]   fit done in 107s, predicting val
-[02:31:47]   val rmse 1.0454 (predict 0s)
-[02:31:47] best config {'C': 0.1}, predicting test
-[02:31:48] DONE val rmse 1.0454  mae 0.6871  ndcg@10 0.8144

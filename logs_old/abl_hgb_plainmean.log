@@ -1,7 +1,0 @@
-[02:35:58] === abl_hgb_plainmean (ablation, reg)
-[02:35:58] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
-[02:35:58] fitting {} on (670109, 97)
-[02:36:33]   fit done in 35s, predicting val
-[02:36:34]   val rmse 0.8608 (predict 1s)
-[02:36:34] best config {}, predicting test
-[02:36:35] DONE val rmse 0.8608  mae 0.6692  ndcg@10 0.8571

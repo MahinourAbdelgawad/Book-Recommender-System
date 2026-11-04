@@ -14,13 +14,10 @@ src/
 ├── dataset_original/
 ├── figures/ # for phase 2 report
 ├── logs/ # logs from each model run in pilot study
-├── logs_old/ # logs from the first run attempt in pilot study
 ├── results/ # final results
 │   ├── *.json # per-model evaluation results
 │   ├── preds/ # saved model predictions for validation/test
 │   └── summary_val.csv # leaderboard sorted by validation RMSE
-├── results_fast/ # results from a quick run on a tiny subset as a check before running the full set
-├── results_old/ # results from the first run attempt
 ├── scripts/ # scripts used for phase III pilot study
 ├── run_all_output.md
 └── README.md
@@ -78,6 +75,7 @@ This file defines all the models used in the pilot study
 
 #### `scripts/run_all.py`
 This script runs the the full expereiment. It runs all the models in models.py in sequence and saves the resutls and logs.
+The --fast option was used as a quick check to make sure the scripts were all fine before running the full training (sanity check)
 
 #### `scripts/run_model.py`
 This runs one model at a time. Used at a later stage to add models I initially forgot while the run_all script was running

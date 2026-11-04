@@ -1,7 +1,0 @@
-[02:27:01] === lin_user_book_mean (linear, reg)
-[02:27:01] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
-[02:27:01] fitting {} on (670109, 2)
-[02:27:01]   fit done in 0s, predicting val
-[02:27:01]   val rmse 0.8663 (predict 0s)
-[02:27:01] best config {}, predicting test
-[02:27:01] DONE val rmse 0.8663  mae 0.6778  ndcg@10 0.8526

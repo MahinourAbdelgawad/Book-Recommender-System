@@ -1,7 +1,0 @@
-[02:27:13] === gnb (naive_bayes, cls)
-[02:27:13] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
-[02:27:13] fitting {} on (670109, 97)
-[02:27:13]   fit done in 1s, predicting val
-[02:27:14]   val rmse 1.3457 (predict 0s)
-[02:27:14] best config {}, predicting test
-[02:27:14] DONE val rmse 1.3457  mae 1.0000  ndcg@10 0.8308

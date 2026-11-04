@@ -1,7 +1,0 @@
-[02:27:03] === linreg (linear, reg)
-[02:27:03] data loaded: train (670109, 97), val (144176, 97), test (148614, 97)
-[02:27:03] fitting {} on (670109, 97)
-[02:27:07]   fit done in 4s, predicting val
-[02:27:07]   val rmse 0.8611 (predict 0s)
-[02:27:07] best config {}, predicting test
-[02:27:07] DONE val rmse 0.8611  mae 0.6730  ndcg@10 0.8581
