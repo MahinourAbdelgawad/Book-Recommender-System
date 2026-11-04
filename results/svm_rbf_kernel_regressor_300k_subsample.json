@@ -1,0 +1,33 @@
+{
+  "name": "svm_rbf_kernel_regressor_300k_subsample",
+  "family": "svm",
+  "task": "reg",
+  "fast": false,
+  "params": {
+    "selected": {},
+    "trials": [
+      {
+        "config": {},
+        "val_rmse": 0.8712070985247385,
+        "fit_s": 36095.79454541206,
+        "predict_val_s": 4869.071504831314
+      }
+    ],
+    "n_train": 300000,
+    "n_features": 97
+  },
+  "fit_time_s": 36095.79454541206,
+  "predict_time_s": 4869.071504831314,
+  "val": {
+    "rmse": 0.8712070985247385,
+    "mae": 0.6545255230207266,
+    "ndcg@10": 0.8576877464104073
+  },
+  "test": {
+    "rmse": 0.8704062914348084,
+    "mae": 0.6537495281581562,
+    "ndcg@10": 0.8531967881122259
+  },
+  "peak_rss_mb": 3200.13671875,
+  "finished_at": "2026-11-04 12:17:58"
+}

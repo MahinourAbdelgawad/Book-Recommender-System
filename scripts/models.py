@@ -150,6 +150,9 @@ add("knn_regressor", "knn", "reg",
 add("svm_rbf_kernel_regressor", "svm", "reg",
     partial(SVR, kernel="rbf", C=1.0, epsilon=0.1, gamma="scale", cache_size=2000, verbose=True))
 
+add("svm_rbf_kernel_regressor_300k_subsample", "svm", "reg",
+    partial(SVR, kernel="rbf", C=1.0, epsilon=0.1, gamma="scale", cache_size=2000, verbose=True),
+    n_train=300_000)
 
 
 # neural netowrks
