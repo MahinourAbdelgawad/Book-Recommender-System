@@ -62,6 +62,7 @@
                 <div class="book-info">
                   <h3>{{ book.title }}</h3>
                   {% if book.author %}<p>{{ book.author }}</p>{% endif %}
+                  {% if book.shelf %}<p class="shelf-label">{{ book.shelf|replace('-', ' ')|capitalize }}</p>{% endif %}
                   {% if book.rating is not none %}
                     <span class="stars" aria-label="{{ book.rating }} out of 5 stars" role="img">{{ '★' * book.rating }}<span>{{ '☆' * (5 - book.rating) }}</span></span>
                   {% endif %}

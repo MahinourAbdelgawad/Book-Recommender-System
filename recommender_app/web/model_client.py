@@ -19,7 +19,7 @@ class ModelServiceError(Exception):
 def recommend(api_url, api_key, books, top_n=10):
     ratings = {book["goodreads_id"] or f"local:{book['id']}": book["rating"]
                for book in books if book["rating"] is not None}
-    excluded = [book["goodreads_id"] for book in books if book["goodreads_id"]]
+    excluded = [book["goodreads_id"] for book in books if book["goodreads_id"] and book["shelf"] != "to-read"]
     headers = {"X-API-Key": api_key} if api_key else {}
     try:
         response = httpx.post(f"{api_url.rstrip('/')}/v1/recommend", headers=headers,

@@ -25,8 +25,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS manual_book_identity ON books(title_key, autho
 CREATE TABLE IF NOT EXISTS library (
     book_id INTEGER PRIMARY KEY REFERENCES books(id),
     rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+    shelf TEXT,
     added_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS books_isbn ON books(isbn);
+CREATE INDEX IF NOT EXISTS books_isbn13 ON books(isbn13);
+CREATE TABLE IF NOT EXISTS import_drafts (
+    id TEXT PRIMARY KEY,
+    rows_json TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS recommendation_feedback (
     event_id TEXT PRIMARY KEY,
@@ -51,15 +59,18 @@ def open_database(path):
 
 
 def initialize(path):
-    with closing(open_database(path)) as db:
+    with closing(open_database(path)) as db, db:
         db.executescript(SCHEMA)
+        db.execute("BEGIN IMMEDIATE")
+        if "shelf" not in {row["name"] for row in db.execute("PRAGMA table_info(library)")}:
+            db.execute("ALTER TABLE library ADD COLUMN shelf TEXT")
 
 
 def search_books(db, query):
     key = search_key(query)
     literal = key.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     return db.execute("""
-        SELECT b.*, l.rating, l.book_id AS saved_id
+        SELECT b.*, l.rating, l.shelf, l.book_id AS saved_id
         FROM books b LEFT JOIN library l ON l.book_id = b.id
         WHERE b.title_key LIKE ? ESCAPE '\\' OR b.author_key LIKE ? ESCAPE '\\'
         ORDER BY CASE WHEN b.title_key = ? THEN 0 WHEN b.title_key LIKE ? ESCAPE '\\' THEN 1 ELSE 2 END,
@@ -70,7 +81,7 @@ def search_books(db, query):
 
 def library_books(db):
     return db.execute("""
-        SELECT b.*, l.rating, l.book_id AS saved_id
+        SELECT b.*, l.rating, l.shelf, l.book_id AS saved_id
         FROM library l JOIN books b ON b.id = l.book_id
         ORDER BY l.updated_at DESC, b.title_key, b.id
     """).fetchall()
@@ -108,6 +119,7 @@ def save_feedback(db, event_id, book_id, version, prediction, rating):
     """, (event_id, book_id, version, prediction, rating))
     if inserted.rowcount:
         save_book(db, book_id, rating, update=True)
+        db.execute("UPDATE library SET shelf = 'read' WHERE book_id = ?", (book_id,))
 
 
 def books_by_goodreads_id(db, ids):

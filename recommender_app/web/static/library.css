@@ -108,3 +108,14 @@ button:hover { background: var(--ink); }
   .recommendation-row .book-info { flex-basis: calc(100% - 58px); }
   .feedback-form { margin-left: 58px; }
 }
+
+.upload-form { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.upload-form input { max-width: 100%; }
+.import-preview { margin-top: 11px; }
+.import-preview > p + p { margin-top: 3px; }
+.import-action { margin-block: 6px; }
+.import-table { overflow-x: auto; }
+.import-table table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.import-table th, .import-table td { padding: 4px 6px; border: 1px solid var(--rule); text-align: left; }
+.import-table th { background: var(--parchment); }
+.import-table select { width: min(100%, 240px); }

@@ -54,3 +54,8 @@ Search by title or author, save a book or add one manually, and rate five
 distinct books to complete your profile. The local library is stored in
 `instance/library.db`. The Flask app supports one local library in this pass.
 
+
+Use **Import Goodreads** to upload a Goodreads library CSV, review which books
+matched or need a choice, and confirm the import. Existing ratings are preserved.
+Goodreads zero-star entries stay unrated and do not count toward the five-rating
+minimum. The app accepts UTF-8 exports up to 8 MB and 5,000 books per upload.

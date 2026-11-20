@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "book_controls.html" import token with context %}
+{% block title %}Import Goodreads{% endblock %}
+{% block heading %}
+  <div class="page-heading">
+    <h1>Import Goodreads</h1>
+    <p>Bring your books, shelves, and star ratings into My Library.</p>
+  </div>
+{% endblock %}
+{% block content %}
+  <section class="panel" aria-labelledby="upload-heading">
+    <h2 id="upload-heading">Goodreads library export</h2>
+    <form class="upload-form" action="{{ url_for('imports.preview') }}" method="post" enctype="multipart/form-data">
+      {{ token() }}
+      <label for="export">CSV file</label>
+      <input name="export" id="export" type="file" accept=".csv,text/csv" required>
+      <button type="submit">Preview import</button>
+    </form>
+  </section>
+  {% if preview %}
+    <section class="panel import-preview" aria-labelledby="preview-heading">
+      <h2 id="preview-heading">Review {{ preview|length }} books</h2>
+      <p>{{ counts.matched }} matched · {{ counts.new }} new · {{ counts.ambiguous }} need review</p>
+      <p>Rows that need review are skipped unless you choose a match or add a new book. Existing library ratings are kept.</p>
+      <form action="{{ url_for('imports.confirm') }}" method="post">
+        {{ token() }}
+        <input type="hidden" name="draft_id" value="{{ draft_id }}">
+        <p class="import-action"><button type="submit">Confirm import</button></p>
+        <div class="import-table">
+          <table>
+            <thead><tr><th scope="col">Book</th><th scope="col">Shelf and rating</th><th scope="col">Import as</th></tr></thead>
+            <tbody>
+              {% for item in preview %}
+                {% set index = loop.index0 %}
+                <tr>
+                  <td><strong>{{ item.row.title }}</strong>{% if item.row.author %}<br>{{ item.row.author }}{% endif %}</td>
+                  <td>{{ (item.row.shelf or 'No shelf')|replace('-', ' ')|capitalize }}<br>
+                    {% if item.row.rating %}{{ item.row.rating }} / 5 ★{% else %}Unrated{% endif %}</td>
+                  <td>
+                    <label class="visually-hidden" for="row-{{ index }}">Import {{ item.row.title }} as</label>
+                    <select name="row-{{ index }}" id="row-{{ index }}">
+                      <option value="skip"{% if item.status == 'ambiguous' %} selected{% endif %}>Skip{% if item.status == 'ambiguous' %} (review match){% endif %}</option>
+                      {% for book in item.matches %}
+                        <option value="{{ book.id }}"{% if item.status == 'matched' %} selected{% endif %}>{{ book.title }}{% if book.year %} ({{ book.year }}){% endif %}{% if book.goodreads_id %} · #{{ book.goodreads_id }}{% endif %}</option>
+                      {% endfor %}
+                      {% if item.method != 'id' %}
+                        <option value="new"{% if item.status == 'new' %} selected{% endif %}>Add as new book</option>
+                      {% endif %}
+                    </select>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="import-action"><button type="submit">Confirm import</button></p>
+      </form>
+    </section>
+  {% endif %}
+{% endblock %}

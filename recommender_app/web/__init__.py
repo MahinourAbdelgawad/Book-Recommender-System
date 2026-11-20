@@ -12,6 +12,7 @@ from flask import Flask, abort, flash, g, redirect, render_template, request, se
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 
 from . import model_client
+from .imports import imports
 from .library import (
     add_manual_book, books_by_goodreads_id, initialize, library_books, open_database,
     save_book, save_feedback, search_books,
@@ -29,6 +30,7 @@ def create_app(config=None):
         DATABASE=Path(os.environ.get("LIBRARY_DB", ROOT / "instance/library.db")),
         SECRET_KEY=os.environ.get("FLASK_SECRET_KEY") or secrets.token_hex(32),
         SESSION_COOKIE_SAMESITE="Lax",
+        MAX_CONTENT_LENGTH=8 * 1024 * 1024,
         MODEL_API_URL=os.environ.get("MODEL_API_URL", "http://127.0.0.1:8000"),
         MODEL_API_KEY=os.environ.get("MODEL_API_KEY"),
     )
@@ -161,4 +163,5 @@ def create_app(config=None):
         loaded, missing = seed_catalog(app.config["DATABASE"], bundle, raw)
         click.echo(f"Loaded {loaded:,} books. Missing Goodreads metadata for {missing:,} catalog IDs.")
 
+    app.register_blueprint(imports)
     return app

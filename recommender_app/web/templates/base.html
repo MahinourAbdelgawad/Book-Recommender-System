@@ -15,6 +15,7 @@
     <nav aria-label="Main navigation">
       <a href="{{ url_for('library') }}"{% if request.endpoint == 'library' %} aria-current="page"{% endif %}>My Library</a>
       <a href="{{ url_for('recommendations') }}"{% if request.endpoint == 'recommendations' %} aria-current="page"{% endif %}>Recommendations</a>
+      <a href="{{ url_for('imports.index') }}"{% if request.endpoint == 'imports.index' %} aria-current="page"{% endif %}>Import Goodreads</a>
     </nav>
   </div>
 </header>
