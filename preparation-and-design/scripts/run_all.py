@@ -6,8 +6,8 @@ try:
     from .common import out_dir
     from .models import MODELS
 except ImportError:
-    from common import out_dir
-    from models import MODELS
+    from src.preparation_and_design.scripts.common import out_dir
+    from src.preparation_and_design.scripts.models import MODELS
 
 HERE = Path(__file__).resolve().parent
 Path("results").mkdir(exist_ok=True); Path("logs").mkdir(exist_ok=True)

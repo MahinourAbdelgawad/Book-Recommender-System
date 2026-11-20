@@ -15,7 +15,7 @@ import pandas as pd
 
 ID_COLS, LABEL, SPLIT = ["user_id", "book_id"], "rating", "split"
 
-from common import DATA
+from src.preparation_and_design.scripts.common import DATA
 out = DATA
 out.mkdir(parents=True, exist_ok=True)
 
