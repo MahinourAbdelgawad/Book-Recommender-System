@@ -25,7 +25,8 @@ def save_bundle(directory, model, config, data, selection, dataset_hash):
     torch.save(model.state_dict(), directory / "weights.pt")
     np.savez_compressed(directory / "catalog.npz", book_features=data.book_table,
                         user_ids=data.user_ids.astype(str), book_ids=data.book_ids.astype(str),
-                        catalog_indices=data.catalog_indices)
+                        catalog_indices=data.catalog_indices,
+                        trained_user_indices=np.unique(data.users[data.warm_rows["train"]]))
     write_json(directory / "manifest.json", {
         "schema_version": SCHEMA_VERSION, "version": directory.parent.name,
         "model": asdict(config), "feature_names": data.columns,
