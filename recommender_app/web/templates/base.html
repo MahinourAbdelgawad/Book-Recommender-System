@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} · Book Recommender</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='library.css') }}">
+  <script defer src="{{ url_for('static', filename='covers.js') }}"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="shell topbar-inner">
+    <a class="brand" href="{{ url_for('library') }}">Book Recommender</a>
+    <nav aria-label="Main navigation">
+      <a href="{{ url_for('library') }}"{% if request.endpoint == 'library' %} aria-current="page"{% endif %}>My Library</a>
+      <a href="{{ url_for('recommendations') }}"{% if request.endpoint == 'recommendations' %} aria-current="page"{% endif %}>Recommendations</a>
+    </nav>
+  </div>
+</header>
+<main class="shell" id="main">
+  {% block heading %}{% endblock %}
+  {% for message in get_flashed_messages() %}
+    <p class="notice" role="status">{{ message }}</p>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

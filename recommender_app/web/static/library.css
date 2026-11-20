@@ -92,3 +92,19 @@ button:hover { background: var(--ink); }
   .shelf-row .book-info { flex-basis: calc(100% - 34px); }
   .shelf-row .rating-form { margin-left: 34px; }
 }
+
+.topbar nav { display: flex; flex-wrap: wrap; gap: 3px 12px; }
+.topbar nav [aria-current="page"] { color: var(--ink); font-weight: bold; }
+.recommendation-row { align-items: start; gap: 10px; padding-block: 8px; }
+.recommendation-row .cover { width: 48px; height: 68px; }
+.recommendation-row .book-info a, .feedback-form label { font-size: 11px; }
+.recommendation-row .prediction { margin-block: 3px; color: var(--brown); }
+.recommendation-row .blurb { margin-block: 4px; font-size: 12px; }
+.feedback-form { display: grid; gap: 3px; flex: 0 0 auto; }
+.feedback-form button { justify-self: start; }
+
+@media (max-width: 530px) {
+  .recommendation-row { flex-wrap: wrap; }
+  .recommendation-row .book-info { flex-basis: calc(100% - 58px); }
+  .feedback-form { margin-left: 58px; }
+}

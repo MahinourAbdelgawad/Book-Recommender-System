@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "book_controls.html" import token, rating_options, cover with context %}
+{% block title %}Recommendations{% endblock %}
+{% block heading %}
+  <div class="page-heading">
+    <h1>Recommendations</h1>
+    <p>Books you might enjoy based on your library ratings.</p>
+  </div>
+{% endblock %}
+{% block content %}
+  <section class="panel recommendations" aria-labelledby="recommendation-heading">
+    <h2 id="recommendation-heading">Books for you</h2>
+    {% if remaining %}
+      <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to see your recommendations.</p>
+      <a href="{{ url_for('library') }}">Go to My Library</a>
+    {% elif unavailable %}
+      <p>Recommendations are temporarily unavailable. <a href="{{ url_for('recommendations') }}">Try again</a>.</p>
+    {% else %}
+      {% if missing_metadata %}
+        <p class="notice">Some recommendations are missing catalog details.</p>
+      {% endif %}
+      {% if cards %}
+        <ul class="book-list">
+          {% for card in cards %}
+            {% set book = card.book %}
+            <li class="book-row recommendation-row">
+              {{ cover(book) }}
+              <div class="book-info">
+                <h3>{{ book.title }}</h3>
+                {% if book.author or book.year %}
+                  <p>{{ book.author }}{% if book.author and book.year %} · {% endif %}{{ book.year }}</p>
+                {% endif %}
+                <p class="prediction"><strong>Predicted rating</strong> {{ '%.2f'|format(card.predicted) }} / 5 ★</p>
+                <p class="blurb">{{ book.description|striptags|truncate(430) if book.description else 'No description available.' }}</p>
+                <a href="{{ card.goodreads_url }}">View on Goodreads</a>
+              </div>
+              <form class="feedback-form" action="{{ url_for('rate_recommendation') }}" method="post">
+                {{ token() }}
+                <input type="hidden" name="proof" value="{{ card.proof }}">
+                <label for="feedback-{{ book.id }}">Your actual rating</label>
+                <select name="rating" id="feedback-{{ book.id }}" required>{{ rating_options(none, 'Choose stars') }}</select>
+                <button type="submit">Save rating</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% elif not missing_metadata %}
+        <p>No eligible books found for this library.</p>
+      {% endif %}
+    {% endif %}
+  </section>
+{% endblock %}

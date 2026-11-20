@@ -1,0 +1,16 @@
+{% macro token() %}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+{% endmacro %}
+{% macro rating_options(rating, blank) %}
+  <option value=""{% if rating is none %} selected{% endif %}>{{ blank }}</option>
+  {% for stars in range(5, 0, -1) %}
+    <option value="{{ stars }}"{% if rating == stars %} selected{% endif %}>{{ stars }} {{ 'star' if stars == 1 else 'stars' }}</option>
+  {% endfor %}
+{% endmacro %}
+{% macro cover(book) %}
+  <span class="cover" aria-hidden="true">
+    <span class="cover-initial">{{ book.title[0]|upper }}</span>
+    {% if book.cover_url %}<img src="{{ book.cover_url }}" loading="lazy" alt="" referrerpolicy="no-referrer">{% endif %}
+  </span>
+{% endmacro %}
+

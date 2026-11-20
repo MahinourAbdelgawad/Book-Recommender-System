@@ -28,6 +28,14 @@ CREATE TABLE IF NOT EXISTS library (
     added_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS recommendation_feedback (
+    event_id TEXT PRIMARY KEY,
+    book_id INTEGER NOT NULL REFERENCES books(id),
+    model_version TEXT NOT NULL,
+    predicted_rating REAL NOT NULL CHECK (predicted_rating BETWEEN 1 AND 5),
+    actual_rating INTEGER NOT NULL CHECK (actual_rating BETWEEN 1 AND 5),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 
@@ -91,3 +99,20 @@ def save_book(db, book_id, rating, *, update):
     if update:
         db.execute("UPDATE library SET rating = ?, updated_at = CURRENT_TIMESTAMP WHERE book_id = ?",
                    (rating, book_id))
+
+
+def save_feedback(db, event_id, book_id, version, prediction, rating):
+    inserted = db.execute("""
+        INSERT INTO recommendation_feedback (event_id, book_id, model_version, predicted_rating, actual_rating)
+        VALUES (?, ?, ?, ?, ?) ON CONFLICT(event_id) DO NOTHING
+    """, (event_id, book_id, version, prediction, rating))
+    if inserted.rowcount:
+        save_book(db, book_id, rating, update=True)
+
+
+def books_by_goodreads_id(db, ids):
+    if not ids:
+        return {}
+    placeholders = ",".join("?" for _ in ids)
+    rows = db.execute(f"SELECT * FROM books WHERE goodreads_id IN ({placeholders})", ids)
+    return {book["goodreads_id"]: book for book in rows}

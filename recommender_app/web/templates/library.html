@@ -1,47 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Library · Book Recommender</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='library.css') }}">
-  <script defer src="{{ url_for('static', filename='covers.js') }}"></script>
-</head>
-<body>
-{% macro token() %}
-  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-{% endmacro %}
-{% macro rating_options(rating, blank) %}
-  <option value=""{% if rating is none %} selected{% endif %}>{{ blank }}</option>
-  {% for stars in range(5, 0, -1) %}
-    <option value="{{ stars }}"{% if rating == stars %} selected{% endif %}>{{ stars }} {{ 'star' if stars == 1 else 'stars' }}</option>
-  {% endfor %}
-{% endmacro %}
-{% macro cover(book) %}
-  <span class="cover" aria-hidden="true">
-    <span class="cover-initial">{{ book.title[0]|upper }}</span>
-    {% if book.cover_url %}<img src="{{ book.cover_url }}" loading="lazy" alt="" referrerpolicy="no-referrer">{% endif %}
-  </span>
-{% endmacro %}
-
-<a class="skip-link" href="#main">Skip to library</a>
-<header class="topbar">
-  <div class="shell topbar-inner">
-    <a class="brand" href="{{ url_for('library') }}">Book Recommender</a>
-    <nav aria-label="Main navigation"><a href="{{ url_for('library') }}" aria-current="page">My Library</a></nav>
-  </div>
-</header>
-
-<main class="shell" id="main">
+{% extends "base.html" %}
+{% from "book_controls.html" import token, rating_options, cover with context %}
+{% block title %}My Library{% endblock %}
+{% block heading %}
   <div class="page-heading">
     <h1>My Library</h1>
     <p>Keep track of what you’ve read and rate books you know.</p>
   </div>
 
-  {% for message in get_flashed_messages() %}
-    <p class="notice" role="status">{{ message }}</p>
-  {% endfor %}
-
+{% endblock %}
+{% block content %}
   <div class="layout">
     <div class="main-column">
       <section class="panel search-panel" aria-labelledby="search-heading">
@@ -125,7 +92,7 @@
         {% if remaining %}
           <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to complete your profile.</p>
         {% else %}
-          <p>Your reading profile is ready for recommendations.</p>
+          <p><a href="{{ url_for('recommendations') }}">See your recommendations</a></p>
         {% endif %}
       </section>
 
@@ -144,6 +111,4 @@
       </section>
     </aside>
   </div>
-</main>
-</body>
-</html>
+{% endblock %}
