@@ -1,26 +1,22 @@
 # Book Recommender System Using Machine Learning
 
+This directory stores everything used in the data preparation, pilot study, and model design phases
 
-## 1) Project Overview
+## 1) Overview
 
 The directory is organized as follows:
 
 ```text
-src/
+preparation-and-design/
 ├── README.md
-├── __init__.py
-├── data_preparation/ # notebooks used in phase II
+├── data_preparation/
 ├── dataset/
 ├── dataset_original/
-├── figures/ # for phase 2 report
-├── logs/ # logs from each model run in pilot study
-├── results/ # final results
-│   ├── *.json # per-model evaluation results
-│   ├── preds/ # saved model predictions for validation/test
-│   └── summary_val.csv # leaderboard sorted by validation RMSE
-├── scripts/ # scripts used for phase III pilot study
-├── run_all_output.md
-└── README.md
+├── figures/
+├── logs/
+├── model_design/
+├── results/
+└── scripts/
 ```
 
 ## 2) Phase II: Data Preparation
@@ -52,16 +48,11 @@ The cleaned dataset is `dataset/cleaned_dataset.parquet`
 
 
 ## 3) Phase III: Training / Model Evaluation
-
-This is pilot study and training phase. It is controlled by the Python scripts in `scripts/`.
-
-
 #### `scripts/prepare_data.py`
-This is the script that prepared the model-ready training files for all later training runs. Found under `dataset/prepared/` 
+This is the script that prepared the model-ready training files for all later training runs. 
 
 #### `scripts/common.py`
 This file contains the shared helpers used by all training scripts.
-
 
 #### `scripts/models.py`
 This file defines all the models used in the pilot study
@@ -73,6 +64,10 @@ The --fast option was used as a quick check to make sure the scripts were all fi
 #### `scripts/run_model.py`
 This runs one model at a time. Used at a later stage to add models I initially forgot while the run_all script was running
 
-
 #### `scripts/summarize.py`
 This script reads the saved JSON results and prints a comparison table.
+
+
+## 4) Phase IV: Model Design
+### `model_design/phase4_model_design_experiments.ipynb`
+This notebook runs all the model design experiments to find the best model design

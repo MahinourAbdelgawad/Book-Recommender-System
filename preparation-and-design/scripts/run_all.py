@@ -1,16 +1,13 @@
 #run all models
 import subprocess, sys, time
-from pathlib import Path
 
-try:
-    from .common import out_dir
+if __package__:
+    from .common import EXPERIMENT_DIR, LOGS, out_dir
     from .models import MODELS
-except ImportError:
-    from src.preparation_and_design.scripts.common import out_dir
-    from src.preparation_and_design.scripts.models import MODELS
+else:
+    from common import EXPERIMENT_DIR, LOGS, out_dir
+    from models import MODELS
 
-HERE = Path(__file__).resolve().parent
-Path("results").mkdir(exist_ok=True); Path("logs").mkdir(exist_ok=True)
 fast = "--fast" in sys.argv  # quick test before running the full thing
 only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
 root = out_dir(fast)
@@ -18,15 +15,18 @@ root = out_dir(fast)
 failed = []
 
 for name in MODELS:
-    if Path(f"results/{name}.json").exists():
+    if only is not None and name not in only:
+        continue
+    if (root / f"{name}.json").exists():
         print(f"skip {name}", flush=True)
         continue
 
     t0 = time.time()
-    log_path = Path(f"logs/{name}.log")
+    log_path = LOGS / f"{name}.log"
     with log_path.open("w") as log_file:
         proc = subprocess.Popen(
             [sys.executable, "-u", "-m", "scripts.run_model", name] + (["--fast"] if fast else []),
+            cwd=EXPERIMENT_DIR,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -42,8 +42,8 @@ for name in MODELS:
 
     if r != 0:
         failed.append(name)
-        Path(f"results/{name}.FAILED").write_text(status)
+        (root / f"{name}.FAILED").write_text(status)
 
 print("\nall done. failed:", failed or "none", flush=True)
 
-subprocess.run([sys.executable, "-m", "scripts.summarize"] + (["--fast"] if fast else []))
+subprocess.run([sys.executable, "-m", "scripts.summarize"] + (["--fast"] if fast else []), cwd=EXPERIMENT_DIR)

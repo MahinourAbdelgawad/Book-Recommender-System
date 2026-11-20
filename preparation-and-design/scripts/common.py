@@ -9,7 +9,9 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 SEED = 42
-DATA = Path("dataset/prepared")
+EXPERIMENT_DIR = Path(__file__).resolve().parents[1]
+DATA = EXPERIMENT_DIR / "dataset" / "prepared"
+LOGS = EXPERIMENT_DIR / "logs"
 FAST_FRAC = 0.05
 
 
@@ -17,10 +19,14 @@ def log(msg):
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
 
+def results_dir(fast):
+    return EXPERIMENT_DIR / ("results_fast" if fast else "results")
+
+
 def out_dir(fast):
-    root = Path("results_fast" if fast else "results")
+    root = results_dir(fast)
     (root / "preds").mkdir(parents=True, exist_ok=True)
-    Path("logs").mkdir(exist_ok=True)
+    LOGS.mkdir(exist_ok=True)
     return root
 
 

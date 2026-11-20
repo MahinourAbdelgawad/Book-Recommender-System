@@ -6,12 +6,12 @@ import time
 
 import numpy as np
 
-try:
+if __package__:
     from .common import evaluate, load_data, log, out_dir
     from .models import MODELS
-except ImportError:
-    from src.preparation_and_design.scripts.common import evaluate, load_data, log, out_dir
-    from src.preparation_and_design.scripts.models import MODELS
+else:
+    from common import evaluate, load_data, log, out_dir
+    from models import MODELS
 
 fast = "--fast" in sys.argv
 names = [n for arg in sys.argv[1:] if not arg.startswith("--") for n in arg.split(",") if n]

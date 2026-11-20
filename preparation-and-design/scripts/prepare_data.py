@@ -1,21 +1,27 @@
 """
 Prepare the data into model ready data
 
-Usage:  python prepare_data.py path/to/final_dataset.parquet  
+Usage: python -m scripts.prepare_data path/to/cleaned_dataset.parquet  
 
-Writes dataset/: X_{train,val,test}.npy (float32), y_*.npy, uid_*.npy, bid_*.npy,
+Writes dataset/prepared/: X_{train,val,test}.npy (float32), y_*.npy, uid_*.npy, bid_*.npy,
 feature_names.json, audit.json, and X_train_plainmean.npy (leakage ablation, see below).
 """
 import json
 import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+if __package__:
+    from .common import DATA
+else:
+    from common import DATA
+
 ID_COLS, LABEL, SPLIT = ["user_id", "book_id"], "rating", "split"
 
-from src.preparation_and_design.scripts.common import DATA
+if len(sys.argv) != 2:
+    sys.exit("usage: prepare_data.py <dataset.parquet or dataset.csv>")
+
 out = DATA
 out.mkdir(parents=True, exist_ok=True)
 

@@ -1,15 +1,19 @@
-""""
+"""
 Default shows VALIDATION metrics only. add --test once, for the final report
 """
 
 import json
 import sys
-from pathlib import Path
 
 import pandas as pd
 
+if __package__:
+    from .common import results_dir
+else:
+    from common import results_dir
+
 fast, show_test = "--fast" in sys.argv, "--test" in sys.argv
-root = Path("results_fast" if fast else "results")
+root = results_dir(fast)
 split = "test" if show_test else "val"
 rows = []
 for f in sorted(root.glob("*.json")):

@@ -12,7 +12,10 @@ from sklearn.svm import SVR, LinearSVC, LinearSVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.neural_network import MLPClassifier, MLPRegressor
  
-from .common import SEED, log
+if __package__:
+    from .common import SEED, log
+else:
+    from common import SEED, log
 
 N_JOBS = 6  
 SITE_WIDE = ["book_ratings_count", "book_text_reviews_count", "author_avg_rating",
