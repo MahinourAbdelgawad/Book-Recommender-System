@@ -7,3 +7,5 @@ goodreads_interactions_dedup.json.gz
 *.pyc
 *.db
 *.npy
+# Local experiment runs and model bundles
+/instance/ml/
