@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "book_controls.html" import token with context %}
+{% block title %}{{ 'Sign up' if signup else 'Sign in' }}{% endblock %}
+{% block heading %}<div class="page-heading account-heading"><h1>{{ 'Create an account' if signup else 'Sign in' }}</h1></div>{% endblock %}
+{% block content %}
+<section class="panel account-panel">
+  <h2>{{ 'Your account' if signup else 'Welcome back' }}</h2>
+  <form class="account-form" method="post">
+    {{ token() }}
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" autocomplete="username" maxlength="254" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" maxlength="128"
+           autocomplete="{{ 'new-password' if signup else 'current-password' }}"
+           {% if signup %}minlength="8"{% endif %} required>
+    <button type="submit">{{ 'Sign up' if signup else 'Sign in' }}</button>
+  </form>
+  {% if signup %}
+    <p>Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a>.</p>
+  {% else %}
+    <p>New here? <a href="{{ url_for('auth.signup') }}">Create an account</a>.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -52,10 +52,17 @@ The bundle, learning curves, and metrics are in `instance/ml/v001/`
 
 Search by title or author, save a book or add one manually, and rate five
 distinct books to complete your profile. The local library is stored in
-`instance/library.db`. The Flask app supports one local library in this pass.
+`instance/library.db`. Each account has its own library.
 
 
 Use **Import Goodreads** to upload a Goodreads library CSV, review which books
 matched or need a choice, and confirm the import. Existing ratings are preserved.
 Goodreads zero-star entries stay unrated and do not count toward the five-rating
 minimum. The app accepts UTF-8 exports up to 8 MB and 5,000 books per upload.
+
+Create a local account to open **Home** and **My Library**. The first account
+inherits any books and feedback from the earlier single-library version.
+Find the Goodreads import button in My Library. Run `seed-catalog` again after
+updating an older installation to load work IDs and series metadata. Series
+positions are inferred from the available catalog titles. A recognized series
+entry with no reliable position is omitted from recommendations.

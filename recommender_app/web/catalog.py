@@ -8,6 +8,7 @@ import re
 import numpy as np
 
 from .library import open_database, search_key
+from .ranking import catalog_series
 
 BOOK_ID = re.compile(rb'"book_id"\s*:\s*"([0-9]+)"')
 
@@ -33,7 +34,8 @@ def seed_catalog(database: Path, bundle: Path, raw: Path):
                 cover = ""
             records.append((book["book_id"], title, author, search_key(title), search_key(author),
                             cover, book.get("description", ""), book.get("isbn", ""),
-                            book.get("isbn13", ""), book.get("publication_year", "")))
+                            book.get("isbn13", ""), book.get("publication_year", ""),
+                            *catalog_series(title, book.get("series") or [], book.get("work_id"))))
             pending.remove(found[1])
             if not pending:
                 break
@@ -42,11 +44,13 @@ def seed_catalog(database: Path, bundle: Path, raw: Path):
     with closing(open_database(database)) as db, db:
         db.executemany("""
             INSERT INTO books (goodreads_id, title, author, title_key, author_key, cover_url,
-                               description, isbn, isbn13, year)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               description, isbn, isbn13, year, work_id, series_key, series_position, bundle)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(goodreads_id) DO UPDATE SET title = excluded.title, author = excluded.author,
                 title_key = excluded.title_key, author_key = excluded.author_key,
                 cover_url = excluded.cover_url, description = excluded.description,
-                isbn = excluded.isbn, isbn13 = excluded.isbn13, year = excluded.year
+                isbn = excluded.isbn, isbn13 = excluded.isbn13, year = excluded.year,
+                work_id = excluded.work_id, series_key = excluded.series_key,
+                series_position = excluded.series_position, bundle = excluded.bundle
         """, records)
     return len(records), len(pending)

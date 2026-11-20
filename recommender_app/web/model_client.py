@@ -16,14 +16,21 @@ class ModelServiceError(Exception):
     pass
 
 
-def recommend(api_url, api_key, books, top_n=10):
-    ratings = {book["goodreads_id"] or f"local:{book['id']}": book["rating"]
-               for book in books if book["rating"] is not None}
-    excluded = [book["goodreads_id"] for book in books if book["goodreads_id"] and book["shelf"] != "to-read"]
+def recommend(api_url, api_key, books, top_n=10, extra_excluded=()):
+    ratings = {}
+    rated_works = set()
+    for book in books:
+        identifier = book["goodreads_id"] or f"local:{book['id']}"
+        work = book["work_id"] or f"entry:{identifier}"
+        if book["rating"] is not None and work not in rated_works:
+            ratings[identifier] = book["rating"]
+            rated_works.add(work)
+    excluded = set(extra_excluded) | {book["goodreads_id"] for book in books
+                                     if book["goodreads_id"] and book["shelf"] != "to-read"}
     headers = {"X-API-Key": api_key} if api_key else {}
     try:
         response = httpx.post(f"{api_url.rstrip('/')}/v1/recommend", headers=headers,
-                              json={"ratings": ratings, "exclude_book_ids": excluded, "top_n": top_n},
+                              json={"ratings": ratings, "exclude_book_ids": sorted(excluded), "top_n": top_n},
                               timeout=5)
         response.raise_for_status()
         payload = response.json()

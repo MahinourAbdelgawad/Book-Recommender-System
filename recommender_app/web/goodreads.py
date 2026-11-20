@@ -4,7 +4,7 @@ import csv
 import io
 import re
 
-from .library import search_key
+from .library import library_edition, search_key
 
 MAX_ROWS = 5000
 REQUIRED_COLUMNS = {"Title", "Author", "My Rating", "Exclusive Shelf"}
@@ -84,10 +84,11 @@ def add_imported_book(db, row):
                       identity).fetchone()["id"]
 
 
-def save_import_row(db, book_id, row):
+def save_import_row(db, user_id, book_id, row):
+    book_id = library_edition(db, user_id, book_id)
     db.execute("""
-        INSERT INTO library (book_id, rating, shelf) VALUES (?, ?, ?)
-        ON CONFLICT(book_id) DO UPDATE SET
+        INSERT INTO library (user_id, book_id, rating, shelf) VALUES (?, ?, ?, ?)
+        ON CONFLICT(user_id, book_id) DO UPDATE SET
             rating = COALESCE(library.rating, excluded.rating),
             shelf = COALESCE(library.shelf, excluded.shelf)
-    """, (book_id, row["rating"], row["shelf"]))
+    """, (user_id, book_id, row["rating"], row["shelf"]))

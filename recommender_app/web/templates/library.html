@@ -3,7 +3,10 @@
 {% block title %}My Library{% endblock %}
 {% block heading %}
   <div class="page-heading">
-    <h1>My Library</h1>
+    <div class="section-tools">
+      <h1>My Library</h1>
+      <a class="button-link" href="{{ url_for('imports.index') }}">Import Goodreads</a>
+    </div>
     <p>Keep track of what you’ve read and rate books you know.</p>
   </div>
 
@@ -33,7 +36,7 @@
                     {% if book.author or book.year %}<p>{{ book.author }}{% if book.author and book.year %} · {% endif %}{{ book.year }}</p>{% endif %}
                   </div>
                   {% if book.saved_id %}
-                    <a class="saved" href="#book-{{ book.id }}">In library</a>
+                    <a class="saved" href="{{ url_for('library', _anchor='book-' ~ book.saved_id) }}">In library</a>
                   {% else %}
                     <form method="post" action="{{ url_for('save_catalog_book', book_id=book.id) }}">
                       {{ token() }}
@@ -54,6 +57,18 @@
           <h2 id="library-heading">Your books</h2>
           <span class="muted">{{ books|length }} {{ 'book' if books|length == 1 else 'books' }}</span>
         </div>
+        {% if shelves %}
+          <form class="shelf-filter" method="get" action="{{ url_for('library') }}">
+            <label for="shelf">Shelf</label>
+            <select name="shelf" id="shelf">
+              <option value="">All books</option>
+              {% for name in shelves %}
+                <option value="{{ name }}"{% if shelf == name %} selected{% endif %}>{{ name|replace('-', ' ')|capitalize }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit">Filter</button>
+          </form>
+        {% endif %}
         {% if books %}
           <ul class="book-list">
             {% for book in books %}
@@ -78,7 +93,7 @@
           </ul>
         {% else %}
           <div class="empty">
-            <h3>Your library is empty</h3>
+            <h3>{{ 'No books on this shelf' if shelf else 'Your library is empty' }}</h3>
             <p>Search for a book you’ve read or add it by hand.</p>
           </div>
         {% endif %}

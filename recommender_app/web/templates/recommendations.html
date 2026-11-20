@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "book_controls.html" import token, rating_options, cover with context %}
+{% from "book_controls.html" import token, cover with context %}
 {% block title %}Recommendations{% endblock %}
 {% block heading %}
   <div class="page-heading">
@@ -14,11 +14,8 @@
       <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to see your recommendations.</p>
       <a href="{{ url_for('library') }}">Go to My Library</a>
     {% elif unavailable %}
-      <p>Recommendations are temporarily unavailable. <a href="{{ url_for('recommendations') }}">Try again</a>.</p>
+      <p>Recommendations are temporarily unavailable. <a href="{{ url_for('recommendations', page=page) }}">Try again</a>.</p>
     {% else %}
-      {% if missing_metadata %}
-        <p class="notice">Some recommendations are missing catalog details.</p>
-      {% endif %}
       {% if cards %}
         <ul class="book-list">
           {% for card in cards %}
@@ -34,19 +31,24 @@
                 <p class="blurb">{{ book.description|striptags|truncate(430) if book.description else 'No description available.' }}</p>
                 <a href="{{ card.goodreads_url }}">View on Goodreads</a>
               </div>
-              <form class="feedback-form" action="{{ url_for('rate_recommendation') }}" method="post">
+              <form class="recommendation-actions" action="{{ url_for('recommendation_action', page=page, book_id=book.id) }}" method="post">
                 {{ token() }}
-                <input type="hidden" name="proof" value="{{ card.proof }}">
-                <label for="feedback-{{ book.id }}">Your actual rating</label>
-                <select name="rating" id="feedback-{{ book.id }}" required>{{ rating_options(none, 'Choose stars') }}</select>
-                <button type="submit">Save rating</button>
+                <button type="submit" name="action" value="to-read">Add to To-read</button>
+                <button class="quiet-button" type="submit" name="action" value="dismiss">Don’t recommend again</button>
               </form>
             </li>
           {% endfor %}
         </ul>
-      {% elif not missing_metadata %}
-        <p>No eligible books found for this library.</p>
+      {% elif matching_cards %}
+        <p>There are no remaining books on this page.</p>
+      {% else %}
+        <p>{{ 'You’ve reached the end of your recommendations.' if page > 1 else 'No eligible books found for this library.' }}</p>
       {% endif %}
+      <nav class="recommendation-pagination" aria-label="Recommendation pages">
+        {% if page > 1 %}<a href="{{ url_for('recommendations', page=page-1) }}">← Page {{ page-1 }}</a>{% endif %}
+        <span aria-current="page">Page {{ page }}</span>
+        {% if has_more %}<a href="{{ url_for('recommendations', page=page+1) }}">Page {{ page+1 }} →</a>{% endif %}
+      </nav>
     {% endif %}
   </section>
 {% endblock %}

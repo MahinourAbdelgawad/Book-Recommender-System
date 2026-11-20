@@ -9,14 +9,16 @@ from urllib.parse import quote
 import click
 from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 
-from itsdangerous import BadSignature, URLSafeTimedSerializer
-
 from . import model_client
+from . import recommendation_pages as pages
+from .auth import auth
 from .imports import imports
 from .library import (
-    add_manual_book, books_by_goodreads_id, initialize, library_books, open_database,
-    save_book, save_feedback, search_books,
+    add_manual_book, books_by_goodreads_id, distinct_rating_count, initialize, library_books, open_database,
+    dismiss_book, dismissed_books, save_book, save_to_read, search_books,
 )
+
+from .ranking import PAGE_SIZE, select_books, work_key
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BUNDLE = ROOT / "instance/ml/v001/bundle"
@@ -36,7 +38,6 @@ def create_app(config=None):
     )
     app.config.update(config or {})
     initialize(app.config["DATABASE"])
-    feedback_tokens = URLSafeTimedSerializer(app.secret_key, salt="recommendation-feedback")
 
     def database():
         if "db" not in g:
@@ -57,6 +58,8 @@ def create_app(config=None):
 
     @app.before_request
     def verify_form_token():
+        if session.get("user_id") is None and request.endpoint not in {"auth.login", "auth.signup", "static"}:
+            return redirect(url_for("auth.login"))
         if request.method == "POST":
             supplied = request.form.get("csrf_token", "").encode()
             expected = session.get("csrf_token", "").encode()
@@ -70,24 +73,38 @@ def create_app(config=None):
         return int(value) if value else None
 
     @app.get("/")
+    def home():
+        books = library_books(database(), session["user_id"])
+        rated = distinct_rating_count(books)
+        return render_template("home.html", books=books[:5], total=len(books), rated=rated,
+                               remaining=max(RATINGS_REQUIRED - rated, 0))
+
+    @app.get("/library")
     def library():
         query = request.args.get("q", "").strip()[:200]
-        books = library_books(database())
-        rated = sum(book["rating"] is not None for book in books)
-        return render_template("library.html", books=books, query=query,
-                               matches=search_books(database(), query) if query else [],
+        books = library_books(database(), session["user_id"])
+        rated = distinct_rating_count(books)
+        shelf = request.args.get("shelf", "")
+        shelves = sorted({book["shelf"] for book in books if book["shelf"]})
+        visible = [book for book in books if not shelf or book["shelf"] == shelf]
+        return render_template("library.html", books=visible, query=query, shelf=shelf, shelves=shelves,
+                               matches=search_books(database(), session["user_id"], query) if query else [],
                                rated=rated, required=RATINGS_REQUIRED,
                                remaining=max(RATINGS_REQUIRED - rated, 0))
 
     @app.post("/library/books/<int:book_id>")
     def save_catalog_book(book_id):
         db = database()
-        if db.execute("SELECT 1 FROM books WHERE id = ?", (book_id,)).fetchone() is None:
+        if db.execute("""
+            SELECT 1 FROM books WHERE id = ? AND (goodreads_id IS NOT NULL OR EXISTS (
+                SELECT 1 FROM library WHERE book_id = books.id AND user_id = ?
+            ))
+        """, (book_id, session["user_id"])).fetchone() is None:
             abort(404)
         update = "rating" in request.form
         rating = submitted_rating()
         with db:
-            save_book(db, book_id, rating, update=update)
+            save_book(db, session["user_id"], book_id, rating, update=update)
         flash("Rating saved." if rating else "Library updated.")
         return redirect(url_for("library"), code=303)
 
@@ -102,54 +119,67 @@ def create_app(config=None):
         db = database()
         with db:
             book_id = add_manual_book(db, title, author)
-            save_book(db, book_id, rating, update=rating is not None)
+            save_book(db, session["user_id"], book_id, rating, update=rating is not None)
         flash("Book saved to your library.")
         return redirect(url_for("library"), code=303)
 
     @app.get("/recommendations")
     def recommendations():
         db = database()
-        books = library_books(db)
-        remaining = max(RATINGS_REQUIRED - sum(book["rating"] is not None for book in books), 0)
+        user_id, browsing_id = session["user_id"], session["browsing_id"]
+        books = library_books(db, user_id)
+        remaining = max(RATINGS_REQUIRED - distinct_rating_count(books), 0)
         if remaining:
             return render_template("recommendations.html", remaining=remaining)
 
-        try:
-            version, ranked = model_client.recommend(
-                app.config["MODEL_API_URL"], app.config["MODEL_API_KEY"], books)
-        except model_client.ModelServiceError:
-            app.logger.warning("Model service recommendation request failed", exc_info=True)
-            return render_template("recommendations.html", unavailable=True), 503
+        page = max(1, request.args.get("page", 1, type=int))
+        last = pages.last_page(db, user_id, browsing_id)
+        if page > last + 1:
+            return redirect(url_for("recommendations", page=last + 1))
+        ranked = pages.load_page(db, user_id, browsing_id, page)
+        dismissed = dismissed_books(db, user_id)
+        if ranked is None:
+            seen = books_by_goodreads_id(db, pages.seen_ids(db, user_id, browsing_id, page))
+            try:
+                _, ranked = select_books(db, app.config["MODEL_API_URL"], app.config["MODEL_API_KEY"],
+                                         books, seen.values(), dismissed)
+            except model_client.ModelServiceError:
+                app.logger.warning("Model service recommendation request failed", exc_info=True)
+                return render_template("recommendations.html", unavailable=True, page=page), 503
+            with db:
+                pages.save_page(db, user_id, browsing_id, page, ranked)
+            ranked = pages.load_page(db, user_id, browsing_id, page)
 
+        hidden = {work_key(book) for book in books + dismissed}
         metadata = books_by_goodreads_id(db, [row.book_id for row in ranked])
         cards = []
         for row in ranked:
             book = metadata.get(row.book_id)
-            if book is None:
-                continue
-            proof = feedback_tokens.dumps([secrets.token_urlsafe(16), book["id"], version, row.rating])
-            cards.append(dict(book=book, predicted=row.rating, proof=proof,
-                              goodreads_url=f"https://www.goodreads.com/book/show/{quote(row.book_id, safe='')}"))
-        return render_template("recommendations.html", cards=cards,
-                               missing_metadata=len(cards) < len(ranked))
+            if book is not None and work_key(book) not in hidden:
+                cards.append(dict(book=book, predicted=row.rating,
+                                  goodreads_url=f"https://www.goodreads.com/book/show/{quote(row.book_id, safe='')}"))
+        return render_template("recommendations.html", cards=cards, page=page,
+                               has_more=len(ranked) == PAGE_SIZE, matching_cards=bool(ranked))
 
-    @app.post("/recommendations/feedback")
-    def rate_recommendation():
-        rating = submitted_rating()
-        if rating is None:
-            abort(400, "Choose a rating from 1 to 5 stars.")
-        try:
-            event_id, book_id, version, prediction = feedback_tokens.loads(
-                request.form.get("proof", ""), max_age=86400)
-        except BadSignature:
-            flash("This recommendation expired. Open Recommendations again to rate it.")
-            return redirect(url_for("recommendations"), code=303)
-
+    @app.post("/recommendations/<int:page>/books/<int:book_id>")
+    def recommendation_action(page, book_id):
         db = database()
+        user_id, browsing_id = session["user_id"], session["browsing_id"]
+        ranked = pages.load_page(db, user_id, browsing_id, page) or []
+        book = db.execute("SELECT goodreads_id FROM books WHERE id = ?", (book_id,)).fetchone()
+        if book is None or not any(item.book_id == book["goodreads_id"] for item in ranked):
+            abort(404)
+        action = request.form.get("action")
         with db:
-            save_feedback(db, event_id, book_id, version, prediction, rating)
-        flash("Rating saved to your library.")
-        return redirect(url_for("library", _anchor=f"book-{book_id}"), code=303)
+            if action == "to-read":
+                save_to_read(db, user_id, book_id)
+                flash("Added to your To-read shelf.")
+            elif action == "dismiss":
+                dismiss_book(db, user_id, book_id)
+                flash("This book will no longer be recommended.")
+            else:
+                abort(400)
+        return redirect(url_for("recommendations", page=page), code=303)
 
     @app.cli.command("seed-catalog")
     @click.option("--bundle", type=click.Path(path_type=Path, exists=True, file_okay=False),
@@ -163,5 +193,6 @@ def create_app(config=None):
         loaded, missing = seed_catalog(app.config["DATABASE"], bundle, raw)
         click.echo(f"Loaded {loaded:,} books. Missing Goodreads metadata for {missing:,} catalog IDs.")
 
+    app.register_blueprint(auth)
     app.register_blueprint(imports)
     return app

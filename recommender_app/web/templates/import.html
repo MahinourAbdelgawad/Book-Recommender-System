@@ -3,6 +3,7 @@
 {% block title %}Import Goodreads{% endblock %}
 {% block heading %}
   <div class="page-heading">
+    <p><a href="{{ url_for('library') }}">← My Library</a></p>
     <h1>Import Goodreads</h1>
     <p>Bring your books, shelves, and star ratings into My Library.</p>
   </div>
@@ -26,13 +27,17 @@
         {{ token() }}
         <input type="hidden" name="draft_id" value="{{ draft_id }}">
         <p class="import-action"><button type="submit">Confirm import</button></p>
+        {% if counts.ambiguous %}
+          <input type="checkbox" id="only-review" class="review-toggle">
+          <label for="only-review">Show only rows needing review</label>
+        {% endif %}
         <div class="import-table">
           <table>
             <thead><tr><th scope="col">Book</th><th scope="col">Shelf and rating</th><th scope="col">Import as</th></tr></thead>
             <tbody>
               {% for item in preview %}
                 {% set index = loop.index0 %}
-                <tr>
+                <tr data-status="{{ item.status }}">
                   <td><strong>{{ item.row.title }}</strong>{% if item.row.author %}<br>{{ item.row.author }}{% endif %}</td>
                   <td>{{ (item.row.shelf or 'No shelf')|replace('-', ' ')|capitalize }}<br>
                     {% if item.row.rating %}{{ item.row.rating }} / 5 ★{% else %}Unrated{% endif %}</td>

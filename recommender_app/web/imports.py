@@ -87,7 +87,7 @@ def confirm():
                 return redirect(url_for("imports.index"), code=303)
             row = item["row"]
             book_id = add_imported_book(db, row) if choice == "new" else matches[choice]
-            save_import_row(db, book_id, row)
+            save_import_row(db, session["user_id"], book_id, row)
             imported += 1
         db.execute("DELETE FROM import_drafts WHERE id = ?", (session["goodreads_draft"],))
     session.pop("goodreads_draft", None)

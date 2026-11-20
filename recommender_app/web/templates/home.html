@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "book_controls.html" import cover with context %}
+{% block title %}Home{% endblock %}
+{% block heading %}<div class="page-heading"><h1>Home</h1></div>{% endblock %}
+{% block content %}
+<div class="layout">
+  <section class="panel" aria-labelledby="recent-heading">
+    <h2 id="recent-heading">Recently updated books</h2>
+    {% if books %}
+      <ul class="book-list">
+        {% for book in books %}
+        <li class="book-row">
+          {{ cover(book) }}
+          <div class="book-info">
+            <h3><a href="{{ url_for('library', _anchor='book-' ~ book.id) }}">{{ book.title }}</a></h3>
+            {% if book.author %}<p>{{ book.author }}</p>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Your library is empty. <a href="{{ url_for('library') }}">Find a book to add</a>.</p>
+    {% endif %}
+  </section>
+  <aside class="panel">
+    <h2>Your reading profile</h2>
+    <p>{{ total }} saved · {{ rated }} rated</p>
+    {% if remaining %}
+      <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to unlock recommendations.</p>
+      <p class="more-link"><a class="button-link" href="{{ url_for('library') }}">Go to My Library</a></p>
+    {% else %}
+      <p class="more-link"><a class="button-link" href="{{ url_for('recommendations') }}">See recommendations</a></p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

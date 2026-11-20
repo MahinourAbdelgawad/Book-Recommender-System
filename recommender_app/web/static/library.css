@@ -97,16 +97,16 @@ button:hover { background: var(--ink); }
 .topbar nav [aria-current="page"] { color: var(--ink); font-weight: bold; }
 .recommendation-row { align-items: start; gap: 10px; padding-block: 8px; }
 .recommendation-row .cover { width: 48px; height: 68px; }
-.recommendation-row .book-info a, .feedback-form label { font-size: 11px; }
+.recommendation-row .book-info a, .recommendation-actions button { font-size: 11px; }
 .recommendation-row .prediction { margin-block: 3px; color: var(--brown); }
 .recommendation-row .blurb { margin-block: 4px; font-size: 12px; }
-.feedback-form { display: grid; gap: 3px; flex: 0 0 auto; }
-.feedback-form button { justify-self: start; }
+.recommendation-actions { display: grid; gap: 3px; flex: 0 0 auto; }
+.recommendation-actions button { justify-self: start; }
 
 @media (max-width: 530px) {
   .recommendation-row { flex-wrap: wrap; }
   .recommendation-row .book-info { flex-basis: calc(100% - 58px); }
-  .feedback-form { margin-left: 58px; }
+  .recommendation-actions { margin-left: 58px; }
 }
 
 .upload-form { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
@@ -119,3 +119,25 @@ button:hover { background: var(--ink); }
 .import-table th, .import-table td { padding: 4px 6px; border: 1px solid var(--rule); text-align: left; }
 .import-table th { background: var(--parchment); }
 .import-table select { width: min(100%, 240px); }
+
+.topbar nav { align-items: center; }
+.topbar nav button { min-height: 22px; }
+.account-heading { text-align: center; }
+.account-panel { max-width: 340px; margin-inline: auto; }
+.account-form { display: grid; gap: 4px; margin-bottom: 8px; }
+.account-form button { justify-self: start; margin-top: 3px; }
+.section-tools, .shelf-filter { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.section-tools { justify-content: space-between; }
+.shelf-filter { margin-bottom: 5px; }
+.button-link { display: inline-block; padding: 2px 7px; min-height: 24px; border: 1px solid var(--ink); border-radius: 2px; background: var(--brown); color: var(--paper); font-size: 12px; text-decoration: none; }
+.button-link:hover { background: var(--ink); }
+.more-link { margin-top: 7px; }
+
+.review-toggle { min-height: 0; vertical-align: middle; }
+.review-toggle ~ .import-table { margin-top: 5px; }
+.review-toggle:checked ~ .import-table tr[data-status]:not([data-status="ambiguous"]) { display: none; }
+
+.quiet-button { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+.quiet-button:hover { background: var(--parchment); }
+.recommendation-pagination { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.recommendation-pagination [aria-current] { font-weight: bold; }
