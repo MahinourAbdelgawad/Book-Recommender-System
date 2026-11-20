@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Library · Book Recommender</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='library.css') }}">
+  <script defer src="{{ url_for('static', filename='covers.js') }}"></script>
+</head>
+<body>
+{% macro token() %}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+{% endmacro %}
+{% macro rating_options(rating, blank) %}
+  <option value=""{% if rating is none %} selected{% endif %}>{{ blank }}</option>
+  {% for stars in range(5, 0, -1) %}
+    <option value="{{ stars }}"{% if rating == stars %} selected{% endif %}>{{ stars }} {{ 'star' if stars == 1 else 'stars' }}</option>
+  {% endfor %}
+{% endmacro %}
+{% macro cover(book) %}
+  <span class="cover" aria-hidden="true">
+    <span class="cover-initial">{{ book.title[0]|upper }}</span>
+    {% if book.cover_url %}<img src="{{ book.cover_url }}" loading="lazy" alt="" referrerpolicy="no-referrer">{% endif %}
+  </span>
+{% endmacro %}
+
+<a class="skip-link" href="#main">Skip to library</a>
+<header class="topbar">
+  <div class="shell topbar-inner">
+    <a class="brand" href="{{ url_for('library') }}">Book Recommender</a>
+    <nav aria-label="Main navigation"><a href="{{ url_for('library') }}" aria-current="page">My Library</a></nav>
+  </div>
+</header>
+
+<main class="shell" id="main">
+  <div class="page-heading">
+    <h1>My Library</h1>
+    <p>Keep track of what you’ve read and rate books you know.</p>
+  </div>
+
+  {% for message in get_flashed_messages() %}
+    <p class="notice" role="status">{{ message }}</p>
+  {% endfor %}
+
+  <div class="layout">
+    <div class="main-column">
+      <section class="panel search-panel" aria-labelledby="search-heading">
+        <h2 id="search-heading">Find a book</h2>
+        <form action="{{ url_for('library') }}" method="get" class="search" role="search">
+          <label class="visually-hidden" for="q">Title or author</label>
+          <input type="search" name="q" id="q" value="{{ query }}" placeholder="Search by title or author" maxlength="200" required>
+          <button type="submit">Search</button>
+        </form>
+        {% if query %}
+          <div class="results-heading">
+            <h3>Results for “{{ query }}”</h3>
+            <a href="{{ url_for('library') }}">Clear search</a>
+          </div>
+          {% if matches %}
+            <ul class="book-list">
+              {% for book in matches %}
+                <li class="book-row">
+                  {{ cover(book) }}
+                  <div class="book-info">
+                    <h4>{{ book.title }}</h4>
+                    {% if book.author or book.year %}<p>{{ book.author }}{% if book.author and book.year %} · {% endif %}{{ book.year }}</p>{% endif %}
+                  </div>
+                  {% if book.saved_id %}
+                    <a class="saved" href="#book-{{ book.id }}">In library</a>
+                  {% else %}
+                    <form method="post" action="{{ url_for('save_catalog_book', book_id=book.id) }}">
+                      {{ token() }}
+                      <button class="secondary" type="submit" aria-label="Add {{ book.title }} to library">Add</button>
+                    </form>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="muted">No books found. Try a shorter search or <a href="#manual">add the book manually</a>.</p>
+          {% endif %}
+        {% endif %}
+      </section>
+
+      <section class="panel shelf" aria-labelledby="library-heading">
+        <div class="section-heading">
+          <h2 id="library-heading">Your books</h2>
+          <span class="muted">{{ books|length }} {{ 'book' if books|length == 1 else 'books' }}</span>
+        </div>
+        {% if books %}
+          <ul class="book-list">
+            {% for book in books %}
+              <li class="book-row shelf-row" id="book-{{ book.id }}">
+                {{ cover(book) }}
+                <div class="book-info">
+                  <h3>{{ book.title }}</h3>
+                  {% if book.author %}<p>{{ book.author }}</p>{% endif %}
+                  {% if book.rating is not none %}
+                    <span class="stars" aria-label="{{ book.rating }} out of 5 stars" role="img">{{ '★' * book.rating }}<span>{{ '☆' * (5 - book.rating) }}</span></span>
+                  {% endif %}
+                </div>
+                <form class="rating-form" method="post" action="{{ url_for('save_catalog_book', book_id=book.id) }}">
+                  {{ token() }}
+                  <label class="visually-hidden" for="rating-{{ book.id }}">Your rating for {{ book.title }}</label>
+                  <select name="rating" id="rating-{{ book.id }}">{{ rating_options(book.rating, 'Unrated') }}</select>
+                  <button class="secondary" type="submit">Save</button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty">
+            <h3>Your library is empty</h3>
+            <p>Search for a book you’ve read or add it by hand.</p>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <aside class="sidebar" aria-label="Library tools">
+      <section class="panel progress-panel" aria-labelledby="progress-heading">
+        <h2 id="progress-heading">Your reading profile</h2>
+        <label for="rating-progress"><strong>{{ rated }}</strong> / {{ required }} books rated</label>
+        <progress id="rating-progress" value="{{ [rated, required]|min }}" max="{{ required }}"></progress>
+        {% if remaining %}
+          <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to complete your profile.</p>
+        {% else %}
+          <p>Your reading profile is ready for recommendations.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel manual-panel" id="manual" aria-labelledby="manual-heading">
+        <h2 id="manual-heading">Add a book manually</h2>
+        <form method="post" action="{{ url_for('save_manual_book') }}">
+          {{ token() }}
+          <label for="title">Title</label>
+          <input id="title" name="title" maxlength="250" required>
+          <label for="author">Author</label>
+          <input id="author" name="author" maxlength="250" required>
+          <label for="manual-rating">Your rating</label>
+          <select id="manual-rating" name="rating">{{ rating_options(none, 'Leave unrated') }}</select>
+          <button type="submit">Add to library</button>
+        </form>
+      </section>
+    </aside>
+  </div>
+</main>
+</body>
+</html>
