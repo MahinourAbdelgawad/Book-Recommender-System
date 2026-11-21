@@ -1,5 +1,3 @@
-"""Flask application for building a local reading library."""
-
 import hmac
 import os
 from pathlib import Path

@@ -1,5 +1,3 @@
-"""Preview and confirm imports without putting uploaded rows in cookies."""
-
 from contextlib import closing
 import json
 import secrets

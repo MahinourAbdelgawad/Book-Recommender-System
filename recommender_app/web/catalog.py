@@ -1,5 +1,3 @@
-"""Build a small searchable catalog by streaming the local Goodreads files."""
-
 from contextlib import closing
 import json
 from pathlib import Path

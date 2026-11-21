@@ -1,5 +1,3 @@
-"""Parse Goodreads exports, match editions, and save confirmed library rows."""
-
 import csv
 import io
 import re

@@ -1,5 +1,3 @@
-"""SQLite storage for the local library and searchable book catalog."""
-
 from contextlib import closing
 import sqlite3
 from unicodedata import normalize

@@ -1,5 +1,3 @@
-"""Translate a local library into the model service's recommendation request."""
-
 from dataclasses import dataclass
 import math
 

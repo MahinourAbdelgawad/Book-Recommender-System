@@ -1,5 +1,3 @@
-"""Store ordered recommendation pages so readers can return to earlier picks."""
-
 import json
 
 from .model_client import Prediction

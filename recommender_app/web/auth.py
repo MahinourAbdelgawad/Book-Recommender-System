@@ -1,5 +1,3 @@
-"""Local account registration and sign-in."""
-
 from contextlib import closing
 import secrets
 

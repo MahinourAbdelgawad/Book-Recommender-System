@@ -1,5 +1,3 @@
-"""Work-level and series-level filters for recommendation candidates."""
-
 import re
 
 from . import model_client
