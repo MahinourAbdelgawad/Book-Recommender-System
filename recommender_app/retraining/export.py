@@ -1,5 +1,5 @@
-import argparse
 from contextlib import closing
+import os
 from pathlib import Path
 import sqlite3
 
@@ -11,7 +11,7 @@ from recommender_app.web.library import open_database
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATABASE = ROOT / "instance/library.db"
-DEFAULT_BUNDLE = ROOT / "instance/ml/v001/bundle"
+DEFAULT_BUNDLE = Path(os.environ.get("MODEL_BUNDLE_DIR", ROOT / "instance/ml/v001/bundle"))
 DEFAULT_OUTPUT = ROOT / "instance/ml/retraining-ratings.parquet"
 MIN_READER_RATINGS = 5
 
@@ -77,23 +77,9 @@ def export_snapshot(database, bundle_directory, output, minimum_per_reader=MIN_R
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE)
-    parser.add_argument("--bundle", type=Path, default=DEFAULT_BUNDLE)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--minimum-reader-ratings", type=int, default=MIN_READER_RATINGS)
-    args = parser.parse_args()
-
-    summary = export_snapshot(
-        args.database, args.bundle, args.output, args.minimum_reader_ratings
-    )
-    print(f"Rating snapshot written to {summary['output']}")
-    print(f"Explicit app ratings: {summary['explicit_ratings']}")
-    print(f"Catalog ratings before edition grouping: "
-          f"{summary['catalog_ratings_before_work_deduplication']}")
-    print(f"Eligible ratings: {summary['eligible_ratings']}")
-    print(f"Eligible readers: {summary['eligible_readers']}")
-    print(f"Minimum ratings per reader: {summary['minimum_ratings_per_reader']}")
+    # Keep the old module entry point safe: exports now require the threshold gate.
+    from .prepare_snapshot import main as prepare_main
+    prepare_main()
 
 
 if __name__ == "__main__":

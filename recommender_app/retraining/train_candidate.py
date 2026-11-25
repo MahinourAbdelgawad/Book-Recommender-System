@@ -14,6 +14,7 @@ from recommender_app.ml.features import FeatureData
 from recommender_app.ml.model import ModelConfig
 from recommender_app.ml.training import TrainingConfig, fit
 from .candidate import prepare_candidate_inputs, save_candidate_bundle
+from .export import MIN_READER_RATINGS, catalog_book_ids, eligible_ratings
 from .status import check_threshold, included_ratings_from_manifest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -66,6 +67,14 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
 
     active_included = included_ratings_from_manifest(active_manifest)
     inputs = prepare_candidate_inputs(dataset, snapshot)
+    validated_snapshot = eligible_ratings(
+        inputs.ratings, catalog_book_ids(active_bundle), MIN_READER_RATINGS
+    )
+    if len(validated_snapshot) != len(inputs.ratings):
+        raise ValueError(
+            "Snapshot contains duplicate, ineligible, or out-of-catalog ratings; "
+            "create it with the threshold-gated snapshot command"
+        )
     threshold_result = check_threshold(inputs.ratings, active_included, threshold)
     if not threshold_result["threshold_met"]:
         raise ValueError(

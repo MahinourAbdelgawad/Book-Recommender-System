@@ -6,6 +6,7 @@ import pandas as pd
 from recommender_app.ml.bundle import fingerprint, save_bundle
 from recommender_app.ml.features import Examples, FeatureData
 from .dataset import app_training_rows
+from .export import MIN_READER_RATINGS
 from .status import bundle_retraining_metadata
 
 
@@ -27,6 +28,20 @@ def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
         raise ValueError(
             "This rating snapshot predates work-level provenance. Re-export it before "
             "preparing a candidate bundle."
+        )
+    required = {"app_user_id", "book_id", "work_id", "rating", "updated_at"}
+    missing = required - set(ratings.columns)
+    if missing:
+        raise ValueError(f"Rating snapshot is missing columns: {sorted(missing)}")
+    if ratings.duplicated(["app_user_id", "work_id"]).any():
+        raise ValueError("Rating snapshot must contain at most one selected edition per reader/work")
+    values = pd.to_numeric(ratings["rating"], errors="raise")
+    if (not values.between(1, 5).all()) or ((values % 1) != 0).any():
+        raise ValueError("Snapshot ratings must be whole stars between 1 and 5")
+    reader_counts = ratings.groupby("app_user_id")["work_id"].nunique()
+    if not reader_counts.empty and (reader_counts < MIN_READER_RATINGS).any():
+        raise ValueError(
+            f"Every snapshot reader must have at least {MIN_READER_RATINGS} eligible ratings"
         )
     app_rows = app_training_rows(dataset, ratings)
     data = FeatureData(dataset, extra_train=app_rows)
