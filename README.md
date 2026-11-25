@@ -1,4 +1,4 @@
-# Goodreads Book Recommender
+# Book Recommendation System using Machine Learning
 
 A book recommendation app that learns from reader ratings and suggests books from its catalog. Readers can import a Goodreads CSV or add books manually, and browse recommendations in a web app.
 
