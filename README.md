@@ -1,30 +1,26 @@
-# Book Recommender System Using Machine Learning
+# Goodreads Book Recommender
 
-## Repository Structure
+A book recommendation app that learns from reader ratings and suggests books from its catalog. Readers can import a Goodreads CSV or add books manually, and browse recommendations in a web app.
 
-```
-├── README.md
-├── requirements.txt
-├── preparation-and-design/
-│   ├── README.md
-│   ├── data_preparation/
-│   ├── scripts/
-│   ├── model_design/
-│   ├── figures/
-│   ├── logs/
-│   ├── results/
-│   ├── dataset/
-│   └── dataset_original/
+## Repository
+
+```text
+src/
+├── preparation-and-design/   # Project phases, data preparation, and model experiments
 ├── recommender_app/
-│   ├── ml/
-│   ├── model_service/
-│   ├── web/
-│   └── retraining/
+│   ├── ml/                   # Model, features, training, and evaluation
+│   ├── model_service/        # FastAPI prediction and recommendation API
+│   ├── web/                  # Flask app, templates, and static files
+│   └── retraining/           # Rating snapshots, candidate training, scheduling, activation
+├── instance/                 # Local database and model artifacts
 ├── tests/
-└── instance/
+├── requirements.txt
+└── README.md
 ```
 
-## Setup
+## Setup and run
+
+From this directory, create an environment and install dependencies:
 
 ```bash
 python -m venv .venv
@@ -32,32 +28,24 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run the Application
-
-Open two terminals in `src/` and activate the virtual environment in both.
-
-Start the model API:
+Run the model API and Flask app in separate terminals:
 
 ```bash
 python -m uvicorn recommender_app.model_service.api:app --host 127.0.0.1 --port 8000
 ```
 
-In another terminal, start the Flask app:
-
 ```bash
 python -m flask --app recommender_app.web run
 ```
 
+## Model
 
-## App Flow
+The recommender is a PyTorch hybrid neural network. It combines reader and book embeddings with engineered reader and book features to predict a rating. The selected model has two hidden layers, with 128 and 64 units.
 
-**Create account → add or import books → rate five distinct books → Flask sends the reader profile and exclusions to the model API → hybrid PyTorch model scores catalog books → ranked recommendations are cached in SQLite and shown in the browser.**
+## Application
 
+The app uses Flask for the web interface, FastAPI for model predictions, and SQLite for accounts, libraries, and recommendation history. It supports Goodreads CSV import, manual book entry, recommendations, and reader feedback through library ratings and book actions.
 
-The initial bundle is `instance/ml/v001/bundle/`; after promotion, the active bundle path is recorded in `instance/ml/active_bundle.txt`. The local library database is `instance/library.db`.
+## Retraining
 
-## Automatic retraining
-
-The scheduler checks at a chosen interval. Once the rating threshold is met, it saves a frozen snapshot, trains a separate candidate, and compares it with the active model on validation data. A passing candidate is switched in only after the model API reloads and answers a smoke prediction. If reload or prediction fails, the prior active bundle is restored.
-
-
+The scheduler periodically checks for enough new eligible ratings. When the threshold is met, it saves a rating snapshot, trains a separate candidate, and compares it with the active model on validation data. A candidate that passes is activated through the model API. If reload or a prediction check fails, the scheduler restores the previous model. The threshold must be chosen when starting the scheduler; automatic activation also requires the same `MODEL_API_KEY` for the model API, Flask app, and scheduler, with `MODEL_BUNDLE_DIR` unset.
