@@ -72,7 +72,7 @@ def included_ratings_from_manifest(manifest):
     return included
 
 
-def bundle_retraining_metadata(ratings, snapshot_sha256=None):
+def bundle_retraining_metadata(ratings, snapshot_sha256=None, app_reader_transform=None):
     """Build private, non-identifying rating provenance for a candidate bundle."""
     included = rating_signatures(ratings)
     metadata = {
@@ -81,6 +81,8 @@ def bundle_retraining_metadata(ratings, snapshot_sha256=None):
     }
     if snapshot_sha256 is not None:
         metadata["snapshot_sha256"] = snapshot_sha256
+    if app_reader_transform is not None:
+        metadata["app_reader_transform"] = app_reader_transform
     return metadata
 
 

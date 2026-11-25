@@ -1,13 +1,13 @@
 import argparse
 from dataclasses import asdict
 import json
-import os
 from pathlib import Path
 import re
 
 import numpy as np
 import torch
 
+from recommender_app.ml.active_bundle import active_bundle_path
 from recommender_app.ml.bundle import fingerprint, load_bundle, write_json
 from recommender_app.ml.evaluation import Holdout
 from recommender_app.ml.features import FeatureData
@@ -19,9 +19,7 @@ from .status import check_threshold, included_ratings_from_manifest
 
 ROOT = Path(__file__).resolve().parents[2]
 DATASET = ROOT / "preparation-and-design/dataset/cleaned_dataset.parquet"
-ACTIVE_BUNDLE = Path(os.environ.get(
-    "MODEL_BUNDLE_DIR", ROOT / "instance/ml/v001/bundle"
-))
+ACTIVE_BUNDLE = active_bundle_path()
 OUTPUT_ROOT = ROOT / "instance/ml/candidates"
 MODEL_CONFIG = ModelConfig(hidden=(128, 64))
 TRAINING_CONFIG = TrainingConfig()

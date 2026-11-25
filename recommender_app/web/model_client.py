@@ -14,7 +14,7 @@ class ModelServiceError(Exception):
     pass
 
 
-def recommend(api_url, api_key, books, top_n=10, extra_excluded=()):
+def recommend(api_url, api_key, books, top_n=10, extra_excluded=(), reader_id=None):
     ratings = {}
     rated_works = set()
     for book in books:
@@ -27,8 +27,11 @@ def recommend(api_url, api_key, books, top_n=10, extra_excluded=()):
                                      if book["goodreads_id"] and book["shelf"] != "to-read"}
     headers = {"X-API-Key": api_key} if api_key else {}
     try:
+        body = {"ratings": ratings, "exclude_book_ids": sorted(excluded), "top_n": top_n}
+        if reader_id is not None:
+            body["reader_id"] = str(reader_id)
         response = httpx.post(f"{api_url.rstrip('/')}/v1/recommend", headers=headers,
-                              json={"ratings": ratings, "exclude_book_ids": sorted(excluded), "top_n": top_n},
+                              json=body,
                               timeout=5)
         response.raise_for_status()
         payload = response.json()

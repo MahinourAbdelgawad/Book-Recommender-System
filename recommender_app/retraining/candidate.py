@@ -5,7 +5,7 @@ import pandas as pd
 
 from recommender_app.ml.bundle import fingerprint, save_bundle
 from recommender_app.ml.features import Examples, FeatureData
-from .dataset import app_training_rows
+from .dataset import app_reader_transform, app_training_rows
 from .export import MIN_READER_RATINGS
 from .status import bundle_retraining_metadata
 
@@ -50,7 +50,9 @@ def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
         data=data,
         train=data.warm("train"),
         ratings=ratings,
-        provenance=bundle_retraining_metadata(ratings, snapshot_hash),
+        provenance=bundle_retraining_metadata(
+            ratings, snapshot_hash, app_reader_transform(dataset)
+        ),
         snapshot_sha256=snapshot_hash,
     )
 

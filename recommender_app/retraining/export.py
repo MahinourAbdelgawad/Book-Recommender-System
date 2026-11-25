@@ -1,17 +1,17 @@
 from contextlib import closing
-import os
 from pathlib import Path
 import sqlite3
 
 import numpy as np
 import pandas as pd
 
+from recommender_app.ml.active_bundle import active_bundle_path
 from recommender_app.ml.bundle import load_bundle
 from recommender_app.web.library import open_database
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATABASE = ROOT / "instance/library.db"
-DEFAULT_BUNDLE = Path(os.environ.get("MODEL_BUNDLE_DIR", ROOT / "instance/ml/v001/bundle"))
+DEFAULT_BUNDLE = active_bundle_path()
 DEFAULT_OUTPUT = ROOT / "instance/ml/retraining-ratings.parquet"
 MIN_READER_RATINGS = 5
 

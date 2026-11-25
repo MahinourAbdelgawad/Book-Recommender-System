@@ -10,6 +10,14 @@ DEFAULT_OUTPUT = ROOT / "instance/ml/app-training-rows.parquet"
 APP_USER_PREFIX = "app_user_"
 
 
+def app_reader_transform(dataset):
+    """Describe how app account IDs are encoded beyond the base reader IDs."""
+    base = pd.read_parquet(dataset, columns=["user_id"])
+    if pd.api.types.is_numeric_dtype(base["user_id"].dtype):
+        return {"mode": "numeric_offset", "offset": int(base["user_id"].max()) + 1}
+    return {"mode": "prefix", "prefix": APP_USER_PREFIX}
+
+
 def app_training_rows(dataset, ratings):
     """Return rows with dataset-compatible IDs and a train split.
 

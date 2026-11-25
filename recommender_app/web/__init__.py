@@ -140,7 +140,8 @@ def create_app(config=None):
             seen = books_by_goodreads_id(db, pages.seen_ids(db, user_id, browsing_id, page))
             try:
                 _, ranked = select_books(db, app.config["MODEL_API_URL"], app.config["MODEL_API_KEY"],
-                                         books, seen.values(), dismissed)
+                                         books, seen.values(), dismissed,
+                                         reader_id=f"app:{user_id}")
             except model_client.ModelServiceError:
                 app.logger.warning("Model service recommendation request failed", exc_info=True)
                 return render_template("recommendations.html", unavailable=True, page=page), 503
