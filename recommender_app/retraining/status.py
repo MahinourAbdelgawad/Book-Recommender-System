@@ -72,13 +72,16 @@ def included_ratings_from_manifest(manifest):
     return included
 
 
-def bundle_retraining_metadata(ratings):
+def bundle_retraining_metadata(ratings, snapshot_sha256=None):
     """Build private, non-identifying rating provenance for a candidate bundle."""
     included = rating_signatures(ratings)
-    return {
+    metadata = {
         "schema_version": PROVENANCE_SCHEMA_VERSION,
         "included_ratings": included,
     }
+    if snapshot_sha256 is not None:
+        metadata["snapshot_sha256"] = snapshot_sha256
+    return metadata
 
 
 def status(database, bundle, threshold, minimum_reader_ratings=MIN_READER_RATINGS):

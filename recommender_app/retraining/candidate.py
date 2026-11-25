@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from recommender_app.ml.bundle import save_bundle
+from recommender_app.ml.bundle import fingerprint, save_bundle
 from recommender_app.ml.features import Examples, FeatureData
 from .dataset import app_training_rows
 from .status import bundle_retraining_metadata
@@ -17,6 +17,7 @@ class CandidateInputs:
     train: Examples
     ratings: pd.DataFrame
     provenance: dict
+    snapshot_sha256: str
 
 
 def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
@@ -29,11 +30,13 @@ def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
         )
     app_rows = app_training_rows(dataset, ratings)
     data = FeatureData(dataset, extra_train=app_rows)
+    snapshot_hash = fingerprint(snapshot)
     return CandidateInputs(
         data=data,
         train=data.warm("train"),
         ratings=ratings,
-        provenance=bundle_retraining_metadata(ratings),
+        provenance=bundle_retraining_metadata(ratings, snapshot_hash),
+        snapshot_sha256=snapshot_hash,
     )
 
 
