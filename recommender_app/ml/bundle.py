@@ -20,14 +20,14 @@ def write_json(path, contents):
     path.write_text(json.dumps(contents, indent=2, allow_nan=False) + "\n")
 
 
-def save_bundle(directory, model, config, data, selection, dataset_hash):
+def save_bundle(directory, model, config, data, selection, dataset_hash, retraining=None):
     directory.mkdir()
     torch.save(model.state_dict(), directory / "weights.pt")
     np.savez_compressed(directory / "catalog.npz", book_features=data.book_table,
                         user_ids=data.user_ids.astype(str), book_ids=data.book_ids.astype(str),
                         catalog_indices=data.catalog_indices,
                         trained_user_indices=np.unique(data.users[data.warm_rows["train"]]))
-    write_json(directory / "manifest.json", {
+    manifest = {
         "schema_version": SCHEMA_VERSION, "version": directory.parent.name,
         "model": asdict(config), "feature_names": data.columns,
         "user_columns": data.user_columns, "scaler": data.scaler, "mean_rating": data.mean,
@@ -35,7 +35,14 @@ def save_bundle(directory, model, config, data, selection, dataset_hash):
         "n_users": len(data.user_ids), "n_books": len(data.book_ids),
         "selection": selection,
         "weights_sha256": fingerprint(directory / "weights.pt"),
-    })
+    }
+    if retraining is not None:
+        if retraining.get("schema_version") != 1 or not isinstance(
+            retraining.get("included_ratings"), dict
+        ):
+            raise ValueError("Invalid retraining provenance for bundle")
+        manifest["retraining"] = retraining
+    write_json(directory / "manifest.json", manifest)
 
 
 def load_bundle(directory):

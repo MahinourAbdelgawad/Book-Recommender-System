@@ -1,6 +1,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 
 from .export import (
@@ -13,14 +14,15 @@ from .export import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_STATE = ROOT / "instance/ml/retraining-state.json"
+PROVENANCE_SCHEMA_VERSION = 1
 
 
 def rating_signatures(ratings):
     """Map each reader/work to a digest of its current selected rating row."""
     result = {}
     for row in ratings.itertuples(index=False):
-        key = f"{row.app_user_id}\x1f{row.work_id}"
+        identity = f"{row.app_user_id}\x1f{row.work_id}"
+        key = hashlib.sha256(identity.encode("utf-8")).hexdigest()
         contents = json.dumps(
             [str(row.book_id), int(row.rating), str(row.updated_at)],
             ensure_ascii=False,
@@ -47,32 +49,37 @@ def check_threshold(current, previously_included, threshold):
     }
 
 
-def read_included_state(path, active_version):
-    path = Path(path)
-    if not path.exists():
-        if active_version != "v001":
-            raise ValueError(
-                "Missing retraining state for a non-baseline bundle; refusing to guess "
-                "which app ratings it contains"
-            )
-        return {}
-    state = json.loads(path.read_text())
-    if state.get("schema_version") != 1:
-        raise ValueError("Unsupported retraining state schema")
-    if state.get("active_bundle_version") != active_version:
+def included_ratings_from_manifest(manifest):
+    """Read inclusion metadata stored in the selected bundle itself."""
+    metadata = manifest.get("retraining")
+    if metadata is None:
+        if manifest.get("version") == "v001":
+            return {}
         raise ValueError(
-            "Retraining state does not match the selected active bundle; refusing to count ratings"
+            "The selected non-baseline bundle has no retraining provenance; "
+            "refusing to guess which app ratings it contains"
         )
-    included = state.get("included_ratings")
+    if metadata.get("schema_version") != PROVENANCE_SCHEMA_VERSION:
+        raise ValueError("Unsupported bundle retraining provenance schema")
+    included = metadata.get("included_ratings")
     if not isinstance(included, dict) or not all(
         isinstance(key, str) and isinstance(value, str) for key, value in included.items()
     ):
-        raise ValueError("Retraining state has an invalid included_ratings map")
+        raise ValueError("Bundle retraining provenance has an invalid included_ratings map")
     return included
 
 
-def status(database, bundle, state_path, threshold, minimum_reader_ratings=MIN_READER_RATINGS):
-    """Read the app DB and activation state and return a threshold summary."""
+def bundle_retraining_metadata(ratings):
+    """Build private, non-identifying rating provenance for a candidate bundle."""
+    included = rating_signatures(ratings)
+    return {
+        "schema_version": PROVENANCE_SCHEMA_VERSION,
+        "included_ratings": included,
+    }
+
+
+def status(database, bundle, threshold, minimum_reader_ratings=MIN_READER_RATINGS):
+    """Read the app DB and selected bundle and return a threshold summary."""
     from recommender_app.ml.bundle import load_bundle
 
     _, manifest = load_bundle(bundle)
@@ -80,21 +87,21 @@ def status(database, bundle, state_path, threshold, minimum_reader_ratings=MIN_R
     current = eligible_ratings(
         ratings, catalog_book_ids(bundle), minimum_reader_ratings
     )
-    included = read_included_state(state_path, manifest["version"])
+    included = included_ratings_from_manifest(manifest)
     return check_threshold(current, included, threshold)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE)
-    parser.add_argument("--bundle", type=Path, default=DEFAULT_BUNDLE)
-    parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
+    parser.add_argument("--bundle", type=Path,
+                        default=Path(os.environ.get("MODEL_BUNDLE_DIR", DEFAULT_BUNDLE)))
     parser.add_argument("--threshold", type=int, required=True,
                         help="new or changed eligible ratings needed before retraining")
     parser.add_argument("--minimum-reader-ratings", type=int, default=MIN_READER_RATINGS)
     args = parser.parse_args()
 
-    summary = status(args.database, args.bundle, args.state, args.threshold,
+    summary = status(args.database, args.bundle, args.threshold,
                      args.minimum_reader_ratings)
     print(f"Eligible app ratings: {summary['eligible_ratings']}")
     print(f"Previously included in active bundle: {summary['previously_included_ratings']}")
