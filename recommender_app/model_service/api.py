@@ -10,6 +10,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel, Field, StringConstraints
 import torch
 
+from recommender_app.ml.active_bundle import active_bundle_path
 from recommender_app.ml.predictor import Predictor
 
 DEFAULT_BUNDLE = Path(__file__).resolve().parents[2] / "instance/ml/v001/bundle"
@@ -47,16 +48,26 @@ def check_key(x_api_key: Annotated[str | None, Header()] = None):
         raise HTTPException(status_code=401, detail="Invalid model API key")
 
 
+def check_reload_key(x_api_key: Annotated[str | None, Header()] = None):
+    expected = os.environ.get("MODEL_API_KEY")
+    if not expected:
+        raise HTTPException(status_code=503, detail="Model reload is disabled without MODEL_API_KEY")
+    if not hmac.compare_digest((x_api_key or "").encode(), expected.encode()):
+        raise HTTPException(status_code=401, detail="Invalid model API key")
+
+
 def get_predictor(request: Request) -> Predictor:
     return request.app.state.predictor
 
 
 def create_app(bundle_dir: Path | None = None) -> FastAPI:
+    def selected_bundle():
+        return Path(bundle_dir).resolve() if bundle_dir else active_bundle_path(fallback=DEFAULT_BUNDLE)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         torch.set_num_threads(int(os.environ.get("MODEL_THREADS", "4")))
-        directory = bundle_dir or Path(os.environ.get("MODEL_BUNDLE_DIR", DEFAULT_BUNDLE))
-        app.state.predictor = Predictor(directory)
+        app.state.predictor = Predictor(selected_bundle())
         yield
 
     app = FastAPI(title="Book Recommender Model API", lifespan=lifespan)
@@ -65,6 +76,17 @@ def create_app(bundle_dir: Path | None = None) -> FastAPI:
     def health(predictor: Annotated[Predictor, Depends(get_predictor)]):
         return {"status": "ok", "model_version": predictor.version,
                 "catalog_size": len(predictor.books)}
+
+    @app.post("/internal/reload-model", dependencies=[Depends(check_reload_key)])
+    def reload_model(request: Request):
+        # Construct fully before swapping so a broken candidate leaves the old predictor live.
+        directory = selected_bundle()
+        try:
+            predictor = Predictor(directory)
+        except Exception as error:
+            raise HTTPException(status_code=500, detail="Could not load selected model bundle") from error
+        request.app.state.predictor = predictor
+        return {"status": "ok", "model_version": predictor.version}
 
     @app.post("/v1/predict", dependencies=[Depends(check_key)])
     def predict_books(body: PredictRequest, predictor: Annotated[Predictor, Depends(get_predictor)]) -> Scores:

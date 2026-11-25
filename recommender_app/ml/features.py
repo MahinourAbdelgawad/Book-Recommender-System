@@ -49,8 +49,43 @@ def leave_one_out(ids, ratings, counts, sums, fallback):
 class FeatureData:
     """Keep book features and user statistics separate until a split is materialized."""
 
-    def __init__(self, path: Path):
-        frame = pd.read_parquet(path)
+    def __init__(self, path: Path, extra_train: pd.DataFrame | None = None):
+        base = pd.read_parquet(path)
+        # Keep the original holdout cohort fixed when app readers are appended.
+        # The model's validation/test comparison must use the same readers each time.
+        base_user_ids, base_users = np.unique(base.user_id, return_inverse=True)
+        base_counts = np.bincount(base_users)
+        rng = np.random.default_rng(12345)
+        eligible = np.flatnonzero(base_counts >= 30)
+        cold_users = np.sort(rng.choice(eligible, round(0.10 * len(base_user_ids)), replace=False))
+        shuffled = rng.permutation(cold_users)
+        midpoint = len(shuffled) // 2
+        cold_user_ids = {
+            "val": base_user_ids[np.sort(shuffled[:midpoint])],
+            "test": base_user_ids[np.sort(shuffled[midpoint:])],
+        }
+
+        if extra_train is None:
+            frame = base
+        else:
+            required = {"user_id", "book_id", "rating", "split"}
+            missing = required - set(extra_train.columns)
+            if missing:
+                raise ValueError(f"Extra training rows are missing columns: {sorted(missing)}")
+            if not extra_train.empty:
+                if not (extra_train.split.astype(str).str.lower() == "train").all():
+                    raise ValueError("Extra app rows must all belong to the train split")
+                ratings = pd.to_numeric(extra_train.rating, errors="raise")
+                if not np.isfinite(ratings).all() or not ratings.between(1, 5).all():
+                    raise ValueError("Extra app ratings must be between 1 and 5")
+                if set(extra_train.user_id) & set(base.user_id):
+                    raise ValueError("Extra app reader IDs must not collide with original readers")
+                unknown_books = set(extra_train.book_id) - set(base.book_id)
+                if unknown_books:
+                    raise ValueError("Extra app rows contain books outside the original catalog")
+            extra = extra_train.reindex(columns=base.columns)
+            frame = pd.concat((base, extra), ignore_index=True)
+
         self.columns = tuple(name for name in frame if name not in NON_FEATURES)
         self.user_columns = [self.columns.index(name) for name in USER_COLUMNS]
         self.book_columns = [self.columns.index(name) for name in BOOK_COLUMNS]
@@ -65,12 +100,11 @@ class FeatureData:
         order = np.argsort(self.users, kind="stable")
         counts = np.bincount(self.users)
         self.user_rows = np.split(order, np.cumsum(counts)[:-1])
-        rng = np.random.default_rng(12345)
-        eligible = np.flatnonzero(counts >= 30)
-        cold_users = np.sort(rng.choice(eligible, round(0.10 * len(counts)), replace=False))
-        shuffled = rng.permutation(cold_users)
-        midpoint = len(shuffled) // 2
-        self.cold_users = {"val": np.sort(shuffled[:midpoint]), "test": np.sort(shuffled[midpoint:])}
+        user_index = {user_id: index for index, user_id in enumerate(self.user_ids)}
+        self.cold_users = {
+            split: np.sort(np.asarray([user_index[user_id] for user_id in ids], dtype=np.int64))
+            for split, ids in cold_user_ids.items()
+        }
         self.cold_order = {u: rng.permutation(self.user_rows[u]) for u in cold_users}
         warm = ~np.isin(self.users[order], cold_users)
         self.warm_rows = {split: order[warm & (self.split[order] == split)]

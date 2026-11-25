@@ -28,7 +28,7 @@ def work_key(book):
     return book["work_id"] or f"local:{book['id']}"
 
 
-def select_books(db, api_url, api_key, books, seen, dismissed, limit=PAGE_SIZE):
+def select_books(db, api_url, api_key, books, seen, dismissed, limit=PAGE_SIZE, reader_id=None):
     known = {book["goodreads_id"]: book for book in db.execute("""
         SELECT id, goodreads_id, work_id, series_key, series_position, bundle FROM books
         WHERE goodreads_id IS NOT NULL
@@ -44,7 +44,9 @@ def select_books(db, api_url, api_key, books, seen, dismissed, limit=PAGE_SIZE):
     selected = []
     version = None
     while len(selected) < limit:
-        version, candidates = model_client.recommend(api_url, api_key, books, 100, excluded)
+        version, candidates = model_client.recommend(
+            api_url, api_key, books, 100, excluded, reader_id=reader_id
+        )
         fresh = [item for item in candidates if item.book_id not in excluded]
         for item in fresh:
             excluded.add(item.book_id)
