@@ -60,7 +60,7 @@ def export_snapshot(database, bundle_directory, output, minimum_per_reader=MIN_R
 
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    snapshot = eligible[["app_user_id", "book_id", "rating", "updated_at"]].copy()
+    snapshot = eligible[["app_user_id", "book_id", "work_id", "rating", "updated_at"]].copy()
     snapshot["app_user_id"] = snapshot["app_user_id"].astype(str)
     snapshot["book_id"] = snapshot["book_id"].astype(str)
     snapshot.to_parquet(output, index=False)

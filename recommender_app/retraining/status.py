@@ -13,12 +13,15 @@ from .export import (
     read_library_ratings,
 )
 
-ROOT = Path(__file__).resolve().parents[2]
 PROVENANCE_SCHEMA_VERSION = 1
 
 
 def rating_signatures(ratings):
     """Map each reader/work to a digest of its current selected rating row."""
+    required = {"app_user_id", "work_id", "book_id", "rating", "updated_at"}
+    missing = required - set(ratings.columns)
+    if missing:
+        raise ValueError(f"Rating provenance is missing columns: {sorted(missing)}")
     result = {}
     for row in ratings.itertuples(index=False):
         identity = f"{row.app_user_id}\x1f{row.work_id}"
