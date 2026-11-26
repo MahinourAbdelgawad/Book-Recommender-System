@@ -94,14 +94,21 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
     candidate_cold_val = inputs.data.user_ids[inputs.data.cold_users["val"]]
     if not np.array_equal(baseline_cold_val, candidate_cold_val):
         raise ValueError("Candidate construction changed the original cold validation readers")
-    baseline_validation = Holdout(baseline_data, "val")
     candidate_validation = Holdout(inputs.data, "val")
-    active_metrics = baseline_validation.metrics(active_model)
+    if active_manifest.get("retraining"):
+        selection = active_manifest["selection"]
+        if selection.get("validation_protocol") != 1:
+            raise ValueError("Active candidate lacks comparable validation metrics")
+        active_metrics = selection["candidate_validation"]
+    else:
+        active_metrics = Holdout(baseline_data, "val").metrics(active_model)
 
     run.mkdir(parents=True, exist_ok=False)
     protocol = {
         "candidate_version": version,
         "active_version": active_manifest["version"],
+        "active_weights_sha256": active_manifest["weights_sha256"],
+        "validation_protocol": 1,
         "dataset_sha256": dataset_hash,
         "snapshot_sha256": inputs.snapshot_sha256,
         "threshold": threshold,

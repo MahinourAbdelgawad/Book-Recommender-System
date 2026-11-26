@@ -22,7 +22,6 @@ DATABASE = ROOT / "instance/library.db"
 DATASET = ROOT / "preparation-and-design/dataset/cleaned_dataset.parquet"
 OUTPUT_ROOT = ROOT / "instance/ml/candidates"
 SNAPSHOT_DIR = ROOT / "instance/ml/retraining-snapshots"
-SCHEDULER_LOCK = ROOT / "instance/ml/retraining-scheduler.lock"
 LOGGER = logging.getLogger("recommender.retraining")
 
 
@@ -89,7 +88,7 @@ def run_scheduler(database, dataset, snapshot_dir, output_root, threshold,
         raise ValueError("Schedule interval must be positive")
     while True:
         try:
-            with exclusive_lock(SCHEDULER_LOCK):
+            with exclusive_lock(Path(pointer).with_suffix(".scheduler.lock")):
                 result = run_once(
                     database, dataset, snapshot_dir, output_root, threshold,
                     api_url, api_key, pointer, threads,
