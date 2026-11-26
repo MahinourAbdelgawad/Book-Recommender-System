@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import hmac
 import os
 from pathlib import Path
+from threading import Lock
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
@@ -71,6 +72,7 @@ def create_app(bundle_dir: Path | None = None) -> FastAPI:
         yield
 
     app = FastAPI(title="Book Recommender Model API", lifespan=lifespan)
+    reload_lock = Lock()
 
     @app.get("/health")
     def health(predictor: Annotated[Predictor, Depends(get_predictor)]):
@@ -80,12 +82,15 @@ def create_app(bundle_dir: Path | None = None) -> FastAPI:
     @app.post("/internal/reload-model", dependencies=[Depends(check_reload_key)])
     def reload_model(request: Request):
         # Construct fully before swapping so a broken candidate leaves the old predictor live.
-        directory = selected_bundle()
-        try:
-            predictor = Predictor(directory)
-        except Exception as error:
-            raise HTTPException(status_code=500, detail="Could not load selected model bundle") from error
-        request.app.state.predictor = predictor
+        with reload_lock:
+            try:
+                directory = selected_bundle()
+                predictor = Predictor(directory)
+                if directory != selected_bundle():
+                    raise ValueError("The active bundle changed during reload")
+            except Exception as error:
+                raise HTTPException(status_code=500, detail="Could not load selected model bundle") from error
+            request.app.state.predictor = predictor
         return {"status": "ok", "model_version": predictor.version}
 
     @app.post("/v1/predict", dependencies=[Depends(check_key)])

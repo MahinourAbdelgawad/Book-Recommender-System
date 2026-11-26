@@ -7,7 +7,6 @@ import pandas as pd
 
 from recommender_app.ml.active_bundle import active_bundle_path
 from recommender_app.ml.bundle import load_bundle
-from recommender_app.web.library import open_database
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATABASE = ROOT / "instance/library.db"
@@ -36,7 +35,8 @@ def catalog_book_ids(bundle_directory):
 
 
 def read_library_ratings(database):
-    with closing(open_database(database)) as connection:
+    uri = Path(database).resolve().as_uri() + "?mode=ro"
+    with closing(sqlite3.connect(uri, uri=True)) as connection:
         return pd.read_sql_query(RATING_QUERY, connection)
 
 

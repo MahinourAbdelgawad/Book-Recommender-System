@@ -6,14 +6,15 @@ from pathlib import Path
 import tempfile
 from urllib.parse import urlsplit
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 from recommender_app.ml.active_bundle import DEFAULT_POINTER, active_bundle_path
 from recommender_app.ml.bundle import load_bundle
 from .locking import exclusive_lock
 
-ROOT = Path(__file__).resolve().parents[2]
-ACTIVATION_LOCK = ROOT / "instance/ml/activation.lock"
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 
 
 class ActivationError(RuntimeError):
@@ -48,7 +49,7 @@ def _api_json(api_url, path, api_key, *, method="GET", body=None, timeout=10):
         method=method,
     )
     try:
-        with urlopen(request, timeout=timeout) as response:
+        with build_opener(ProxyHandler({}), _NoRedirect()).open(request, timeout=timeout) as response:
             return json.loads(response.read().decode("utf-8"))
     except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as error:
         raise ActivationError(f"Model service request failed at {path}: {error}") from error
@@ -125,7 +126,7 @@ def activate_candidate(candidate_bundle, output_root, api_url, api_key, pointer=
     if manifest.get("selection", {}).get("candidate_version") != candidate_version:
         raise ActivationError("Candidate report version does not match the bundle version")
     pointer = Path(pointer)
-    with exclusive_lock(ACTIVATION_LOCK):
+    with exclusive_lock(pointer.with_suffix(".activation.lock")):
         active = active_bundle_path(pointer=pointer)
         if active == candidate:
             raise ActivationError("Candidate bundle is already active")
@@ -134,7 +135,8 @@ def activate_candidate(candidate_bundle, output_root, api_url, api_key, pointer=
         previous_version = active_manifest["version"]
         check_active_service(api_url, api_key, previous_version)
         selection = manifest.get("selection", {})
-        if selection.get("active_version") != previous_version:
+        if (selection.get("active_version") != previous_version
+                or selection.get("active_weights_sha256") != active_manifest["weights_sha256"]):
             raise ActivationError(
                 "Candidate was trained against a different active bundle; retrain it before activation"
             )
