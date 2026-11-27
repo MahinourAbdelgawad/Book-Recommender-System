@@ -49,8 +49,11 @@ def leave_one_out(ids, ratings, counts, sums, fallback):
 class FeatureData:
     """Keep book features and user statistics separate until a split is materialized."""
 
-    def __init__(self, path: Path, extra_train: pd.DataFrame | None = None):
+    def __init__(self, path: Path, extra_train: pd.DataFrame | None = None, new_books=None):
         base = pd.read_parquet(path)
+        new_books = {} if new_books is None else new_books
+        if set(new_books) & set(base.book_id):
+            raise ValueError("New book features cannot replace base book features")
         # Keep the original holdout cohort fixed when app readers are appended.
         # The model's validation/test comparison must use the same readers each time.
         base_user_ids, base_users = np.unique(base.user_id, return_inverse=True)
@@ -80,7 +83,7 @@ class FeatureData:
                     raise ValueError("Extra app ratings must be between 1 and 5")
                 if set(extra_train.user_id) & set(base.user_id):
                     raise ValueError("Extra app reader IDs must not collide with original readers")
-                unknown_books = set(extra_train.book_id) - set(base.book_id)
+                unknown_books = set(extra_train.book_id) - set(base.book_id) - new_books.keys()
                 if unknown_books:
                     raise ValueError("Extra app rows contain books outside the original catalog")
             extra = extra_train.reindex(columns=base.columns)
@@ -91,6 +94,7 @@ class FeatureData:
         self.book_columns = [self.columns.index(name) for name in BOOK_COLUMNS]
         self.user_ids, self.users = np.unique(frame.user_id, return_inverse=True)
         self.book_ids, self.books = np.unique(frame.book_id, return_inverse=True)
+        self.holdout_book_indices = np.flatnonzero(np.isin(self.book_ids, base.book_id.unique()))
         self.ratings = frame.rating.to_numpy(dtype=np.float32)
         self.split = frame.split.astype(str).str.lower().replace(
             {"valid": "val", "validation": "val"}).to_numpy()
@@ -134,6 +138,10 @@ class FeatureData:
         self.catalog_indices = np.flatnonzero(bc > 0)
         static = [name for name in self.columns if name not in USER_COLUMNS + BOOK_COLUMNS]
         first = frame.drop_duplicates("book_id").set_index("book_id").loc[self.book_ids, static]
+        for book_id, values in new_books.items():
+            if set(values) != set(static) or book_id not in first.index:
+                raise ValueError("New book features do not match the training schema")
+            first.loc[book_id, static] = [values[name] for name in static]
         self.book_table[:, [self.columns.index(name) for name in static]] = first.to_numpy(np.float32)
         self.book_table[:, self.book_columns] = standardize(book_values, BOOK_COLUMNS, self.scaler)
         if not np.isfinite(self.book_table).all():

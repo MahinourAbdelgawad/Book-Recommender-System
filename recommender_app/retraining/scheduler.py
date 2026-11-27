@@ -38,7 +38,7 @@ def next_candidate_version(output_root, active_version):
 
 
 def run_once(database, dataset, snapshot_dir, output_root, threshold, api_url, api_key,
-             pointer=DEFAULT_POINTER, threads=4):
+             pointer=DEFAULT_POINTER, threads=4, book_artifacts=None, minimum_book_readers=3):
     if os.environ.get("MODEL_BUNDLE_DIR"):
         raise ActivationError(
             "Unset MODEL_BUNDLE_DIR to allow the scheduler to manage active bundles"
@@ -50,7 +50,10 @@ def run_once(database, dataset, snapshot_dir, output_root, threshold, api_url, a
     _, active_manifest = load_bundle(active_bundle)
     check_active_service(api_url, api_key, active_manifest["version"])
 
-    snapshot_result = prepare_snapshot(database, active_bundle, snapshot_dir, threshold)
+    snapshot_result = prepare_snapshot(
+        database, active_bundle, snapshot_dir, threshold, dataset=dataset,
+        book_artifacts=book_artifacts, minimum_book_readers=minimum_book_readers,
+    )
     if not snapshot_result["written"]:
         return {
             "status": "below_threshold",
@@ -83,7 +86,7 @@ def run_once(database, dataset, snapshot_dir, output_root, threshold, api_url, a
 
 def run_scheduler(database, dataset, snapshot_dir, output_root, threshold,
                   api_url, api_key, interval_seconds, *, once=False,
-                  pointer=DEFAULT_POINTER, threads=4):
+                  pointer=DEFAULT_POINTER, threads=4, book_artifacts=None, minimum_book_readers=3):
     if interval_seconds <= 0:
         raise ValueError("Schedule interval must be positive")
     while True:
@@ -91,7 +94,7 @@ def run_scheduler(database, dataset, snapshot_dir, output_root, threshold,
             with exclusive_lock(Path(pointer).with_suffix(".scheduler.lock")):
                 result = run_once(
                     database, dataset, snapshot_dir, output_root, threshold,
-                    api_url, api_key, pointer, threads,
+                    api_url, api_key, pointer, threads, book_artifacts, minimum_book_readers,
                 )
             LOGGER.info("Retraining cycle: %s", json.dumps(result, sort_keys=True))
         except Exception:
@@ -110,11 +113,13 @@ def main():
     parser.add_argument("--once", action="store_true",
                         help="perform one cycle instead of continuing on a schedule")
     parser.add_argument("--database", type=Path, default=DATABASE)
-    parser.add_argument("--dataset", type=Path, default=DATASET)
+    parser.add_argument("--dataset", type=Path)
     parser.add_argument("--snapshot-dir", type=Path, default=SNAPSHOT_DIR)
     parser.add_argument("--output-root", type=Path, default=OUTPUT_ROOT)
     parser.add_argument("--api-url", default="http://127.0.0.1:8000")
     parser.add_argument("--threads", type=int, default=4)
+    parser.add_argument("--book-artifacts", type=Path)
+    parser.add_argument("--minimum-book-readers", type=int, default=3)
     args = parser.parse_args()
     if args.threshold < 1:
         parser.error("--threshold must be at least one")
@@ -125,9 +130,13 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
         run_scheduler(
-            args.database, args.dataset, args.snapshot_dir, args.output_root,
+            args.database,
+            args.dataset or (args.book_artifacts / "cleaned_dataset.parquet"
+                             if args.book_artifacts else DATASET),
+            args.snapshot_dir, args.output_root,
             args.threshold, args.api_url, os.environ.get("MODEL_API_KEY", ""),
             args.interval_hours * 3600, once=args.once, threads=args.threads,
+            book_artifacts=args.book_artifacts, minimum_book_readers=args.minimum_book_readers,
         )
     except (ActivationError, OSError, ValueError, RuntimeError) as error:
         parser.error(str(error))

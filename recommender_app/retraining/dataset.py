@@ -18,12 +18,11 @@ def app_reader_transform(dataset):
     return {"mode": "prefix", "prefix": APP_USER_PREFIX}
 
 
-def app_training_rows(dataset, ratings):
+def app_training_rows(dataset, ratings, extra_book_ids=()):
     """Return rows with dataset-compatible IDs and a train split.
 
-    App account IDs are mapped to IDs outside the original reader range. Book IDs
-    must already exist in the original dataset because the model has no features
-    for books outside its trained catalog.
+    App account IDs are mapped outside the original reader range. Books must
+    exist in the base dataset or have static features supplied by the snapshot.
     """
     base = pd.read_parquet(dataset, columns=["user_id", "book_id"])
     if ratings.empty:
@@ -46,7 +45,7 @@ def app_training_rows(dataset, ratings):
         book_ids = ratings["book_id"].astype(str)
 
     known_books = set(base["book_id"].drop_duplicates())
-    unknown = sorted(set(book_ids) - known_books, key=str)
+    unknown = sorted(set(book_ids) - known_books - set(extra_book_ids), key=str)
     if unknown:
         raise ValueError(
             f"{len(unknown)} snapshot books are absent from the engineered dataset. "
