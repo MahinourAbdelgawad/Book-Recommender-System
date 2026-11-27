@@ -141,7 +141,11 @@ def activate_candidate(candidate_bundle, output_root, api_url, api_key, pointer=
                 "Candidate was trained against a different active bundle; retrain it before activation"
             )
         if manifest.get("dataset_sha256") != active_manifest.get("dataset_sha256"):
-            raise ActivationError("Candidate and active bundles use different base datasets")
+            if not (previous_version == "v001"
+                    and selection.get("validation_protocol") == 1
+                    and selection.get("dataset_sha256") == manifest["dataset_sha256"]
+                    and selection.get("active_dataset_sha256") == active_manifest["dataset_sha256"]):
+                raise ActivationError("Candidate has no verified transition from the active dataset")
 
         previous_contents = pointer.read_text() if pointer.exists() else None
         _atomic_pointer_write(pointer, str(candidate))

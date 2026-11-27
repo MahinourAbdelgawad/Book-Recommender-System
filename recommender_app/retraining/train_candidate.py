@@ -14,6 +14,7 @@ from recommender_app.ml.features import FeatureData
 from recommender_app.ml.model import ModelConfig
 from recommender_app.ml.training import TrainingConfig, fit
 from .candidate import prepare_candidate_inputs, save_candidate_bundle
+from .base_transition import comparison_dataset
 from .export import MIN_READER_RATINGS, catalog_book_ids, eligible_ratings
 from .status import check_threshold, included_ratings_from_manifest
 
@@ -60,8 +61,7 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
 
     active_model, active_manifest = load_bundle(active_bundle)
     dataset_hash = fingerprint(dataset)
-    if dataset_hash != active_manifest["dataset_sha256"]:
-        raise ValueError("Dataset differs from the one used by the active bundle")
+    active_dataset = comparison_dataset(dataset, active_manifest)
 
     active_included = included_ratings_from_manifest(active_manifest)
     inputs = prepare_candidate_inputs(dataset, snapshot)
@@ -81,7 +81,7 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
         )
 
     torch.set_num_threads(threads)
-    baseline_data = FeatureData(dataset)
+    baseline_data = FeatureData(active_dataset)
     baseline_val_rows = baseline_data.warm_rows["val"]
     candidate_val_rows = inputs.data.warm_rows["val"]
     if not np.array_equal(baseline_val_rows, candidate_val_rows):
@@ -108,6 +108,7 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
         "candidate_version": version,
         "active_version": active_manifest["version"],
         "active_weights_sha256": active_manifest["weights_sha256"],
+        "active_dataset_sha256": active_manifest["dataset_sha256"],
         "validation_protocol": 1,
         "dataset_sha256": dataset_hash,
         "snapshot_sha256": inputs.snapshot_sha256,

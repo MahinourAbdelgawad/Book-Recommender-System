@@ -56,8 +56,7 @@ def included_ratings_from_manifest(manifest):
     """Read inclusion metadata stored in the selected bundle itself."""
     metadata = manifest.get("retraining")
     if metadata is None:
-        if (manifest.get("version") == "v001"
-                or manifest.get("selection", {}).get("catalog_base") is True):
+        if manifest.get("version") == "v001":
             return {}
         raise ValueError(
             "The selected non-baseline bundle has no retraining provenance; "
@@ -90,14 +89,14 @@ def bundle_retraining_metadata(ratings, snapshot_sha256=None, app_reader_transfo
 def status(database, bundle, threshold, minimum_reader_ratings=MIN_READER_RATINGS, *,
            dataset=None, book_artifacts=None, minimum_book_readers=3):
     """Read the app DB and selected bundle and return a threshold summary."""
-    from recommender_app.ml.bundle import fingerprint, load_bundle
+    from recommender_app.ml.bundle import load_bundle
+    from .base_transition import comparison_dataset
     from .expansion import expanded_catalog
 
     _, manifest = load_bundle(bundle)
-    if book_artifacts is not None and (
-        dataset is None or fingerprint(dataset) != manifest["dataset_sha256"]
-    ):
-        raise ValueError("Use an active baseline trained on the dataset exported with the book transforms")
+    if book_artifacts is not None:
+        dataset = dataset or book_artifacts / "cleaned_dataset.parquet"
+        comparison_dataset(dataset, manifest)
     ratings = read_library_ratings(database)
     catalog, _ = expanded_catalog(
         database, dataset, book_artifacts, ratings, catalog_book_ids(bundle), minimum_book_readers

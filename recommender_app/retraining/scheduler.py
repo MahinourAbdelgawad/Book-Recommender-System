@@ -113,7 +113,7 @@ def main():
     parser.add_argument("--once", action="store_true",
                         help="perform one cycle instead of continuing on a schedule")
     parser.add_argument("--database", type=Path, default=DATABASE)
-    parser.add_argument("--dataset", type=Path, default=DATASET)
+    parser.add_argument("--dataset", type=Path)
     parser.add_argument("--snapshot-dir", type=Path, default=SNAPSHOT_DIR)
     parser.add_argument("--output-root", type=Path, default=OUTPUT_ROOT)
     parser.add_argument("--api-url", default="http://127.0.0.1:8000")
@@ -130,7 +130,10 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
         run_scheduler(
-            args.database, args.dataset, args.snapshot_dir, args.output_root,
+            args.database,
+            args.dataset or (args.book_artifacts / "cleaned_dataset.parquet"
+                             if args.book_artifacts else DATASET),
+            args.snapshot_dir, args.output_root,
             args.threshold, args.api_url, os.environ.get("MODEL_API_KEY", ""),
             args.interval_hours * 3600, once=args.once, threads=args.threads,
             book_artifacts=args.book_artifacts, minimum_book_readers=args.minimum_book_readers,
