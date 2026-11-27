@@ -57,7 +57,10 @@ def preview(database, bundle, minimum_readers):
             "distinct_readers": len(readers),
             "meets_reader_minimum": len(readers) >= minimum_readers,
             "missing_metadata": blockers,
-            "passes_initial_screen": len(readers) >= minimum_readers and not blockers,
+            "passes_initial_screen": (
+                len(readers) >= minimum_readers and bool(best["goodreads_id"])
+                and best["goodreads_id"].isascii() and best["goodreads_id"].isdecimal()
+            ),
         })
     works.sort(key=lambda work: (-work["distinct_readers"], work["title"]))
     return {

@@ -56,7 +56,8 @@ def included_ratings_from_manifest(manifest):
     """Read inclusion metadata stored in the selected bundle itself."""
     metadata = manifest.get("retraining")
     if metadata is None:
-        if manifest.get("version") == "v001":
+        if (manifest.get("version") == "v001"
+                or manifest.get("selection", {}).get("catalog_base") is True):
             return {}
         raise ValueError(
             "The selected non-baseline bundle has no retraining provenance; "
@@ -86,15 +87,22 @@ def bundle_retraining_metadata(ratings, snapshot_sha256=None, app_reader_transfo
     return metadata
 
 
-def status(database, bundle, threshold, minimum_reader_ratings=MIN_READER_RATINGS):
+def status(database, bundle, threshold, minimum_reader_ratings=MIN_READER_RATINGS, *,
+           dataset=None, book_artifacts=None, minimum_book_readers=3):
     """Read the app DB and selected bundle and return a threshold summary."""
-    from recommender_app.ml.bundle import load_bundle
+    from recommender_app.ml.bundle import fingerprint, load_bundle
+    from .expansion import expanded_catalog
 
     _, manifest = load_bundle(bundle)
+    if book_artifacts is not None and (
+        dataset is None or fingerprint(dataset) != manifest["dataset_sha256"]
+    ):
+        raise ValueError("Use an active baseline trained on the dataset exported with the book transforms")
     ratings = read_library_ratings(database)
-    current = eligible_ratings(
-        ratings, catalog_book_ids(bundle), minimum_reader_ratings
+    catalog, _ = expanded_catalog(
+        database, dataset, book_artifacts, ratings, catalog_book_ids(bundle), minimum_book_readers
     )
+    current = eligible_ratings(ratings, catalog, minimum_reader_ratings)
     included = included_ratings_from_manifest(manifest)
     return check_threshold(current, included, threshold)
 
@@ -107,10 +115,14 @@ def main():
     parser.add_argument("--threshold", type=int, required=True,
                         help="new or changed eligible ratings needed before retraining")
     parser.add_argument("--minimum-reader-ratings", type=int, default=MIN_READER_RATINGS)
+    parser.add_argument("--dataset", type=Path)
+    parser.add_argument("--book-artifacts", type=Path)
+    parser.add_argument("--minimum-book-readers", type=int, default=3)
     args = parser.parse_args()
 
     summary = status(args.database, args.bundle, args.threshold,
-                     args.minimum_reader_ratings)
+                     args.minimum_reader_ratings, dataset=args.dataset,
+                     book_artifacts=args.book_artifacts, minimum_book_readers=args.minimum_book_readers)
     print(f"Eligible app ratings: {summary['eligible_ratings']}")
     print(f"Previously included in active bundle: {summary['previously_included_ratings']}")
     print(f"New or changed eligible ratings: {summary['pending_ratings']}")

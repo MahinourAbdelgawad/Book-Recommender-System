@@ -66,7 +66,7 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
     active_included = included_ratings_from_manifest(active_manifest)
     inputs = prepare_candidate_inputs(dataset, snapshot)
     validated_snapshot = eligible_ratings(
-        inputs.ratings, catalog_book_ids(active_bundle), MIN_READER_RATINGS
+        inputs.ratings, catalog_book_ids(active_bundle) | inputs.new_book_ids, MIN_READER_RATINGS
     )
     if len(validated_snapshot) != len(inputs.ratings):
         raise ValueError(
@@ -111,6 +111,7 @@ def run_candidate(dataset, snapshot, active_bundle, output_root, version, thresh
         "validation_protocol": 1,
         "dataset_sha256": dataset_hash,
         "snapshot_sha256": inputs.snapshot_sha256,
+        "expansion_book_count": len(inputs.new_book_ids),
         "threshold": threshold,
         "threshold_result": threshold_result,
         "model": asdict(MODEL_CONFIG),

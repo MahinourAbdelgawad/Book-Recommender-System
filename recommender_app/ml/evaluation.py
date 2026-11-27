@@ -25,7 +25,7 @@ class Holdout:
         users, starts, counts = np.unique(self.cold_users, return_index=True, return_counts=True)
         self.rank_groups = [(start, count) for start, count in zip(starts, counts)]
         negatives = np.stack([
-            rng.choice(np.setdiff1d(np.arange(len(data.book_ids)), data.books[data.user_rows[u]]),
+            rng.choice(np.setdiff1d(data.holdout_book_indices, data.books[data.user_rows[u]]),
                        100, replace=False)
             for u in users
         ]).ravel()

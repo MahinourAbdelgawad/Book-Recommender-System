@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +20,7 @@ class CandidateInputs:
     ratings: pd.DataFrame
     provenance: dict
     snapshot_sha256: str
+    new_book_ids: set[str]
 
 
 def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
@@ -43,8 +45,18 @@ def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
         raise ValueError(
             f"Every snapshot reader must have at least {MIN_READER_RATINGS} eligible ratings"
         )
-    app_rows = app_training_rows(dataset, ratings)
-    data = FeatureData(dataset, extra_train=app_rows)
+    vectors = {}
+    if "static_features" in ratings:
+        numeric = pd.api.types.is_numeric_dtype(
+            pd.read_parquet(dataset, columns=["book_id"]).book_id.dtype
+        )
+        for book_id, encoded in ratings[["book_id", "static_features"]].dropna().itertuples(index=False):
+            key = int(book_id) if numeric else str(book_id)
+            if key in vectors and vectors[key] != json.loads(encoded):
+                raise ValueError("Conflicting features for the same new book")
+            vectors[key] = json.loads(encoded)
+    app_rows = app_training_rows(dataset, ratings, vectors)
+    data = FeatureData(dataset, extra_train=app_rows, new_books=vectors)
     snapshot_hash = fingerprint(snapshot)
     return CandidateInputs(
         data=data,
@@ -54,6 +66,7 @@ def prepare_candidate_inputs(dataset: Path, snapshot: Path) -> CandidateInputs:
             ratings, snapshot_hash, app_reader_transform(dataset)
         ),
         snapshot_sha256=snapshot_hash,
+        new_book_ids={str(key) for key in vectors},
     )
 
 
