@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "book_controls.html" import token with context %}
+{% block title %}Existing book found{% endblock %}
+{% block heading %}<div class="page-heading"><h1>Existing book found</h1></div>{% endblock %}
+{% block content %}
+  <section class="panel">
+    <p>{{ 'Did you mean this book?' if matches|length == 1 else 'Which edition did you mean?' }}</p>
+    {% if matches %}
+      <ul class="book-list">
+        {% for book in matches %}
+          <li class="book-row">
+            <span>{{ book.title }} · {{ book.author }}{% if book.year %} · {{ book.year }}{% endif %}{% if book.goodreads_id %} · #{{ book.goodreads_id }}{% endif %}</span>
+            <form method="post" action="{{ url_for('save_manual_book') }}">
+              {{ token() }}
+              <input type="hidden" name="title" value="{{ book.title }}">
+              <input type="hidden" name="author" value="{{ book.author }}">
+              <input type="hidden" name="existing_id" value="{{ book.id }}">
+              {% if rating is not none %}<input type="hidden" name="rating" value="{{ rating }}">{% endif %}
+              <button type="submit">Use this book</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if allow_new %}
+      <form method="post" action="{{ url_for('save_manual_book') }}">
+        {{ token() }}
+        <input type="hidden" name="title" value="{{ title }}">
+        <input type="hidden" name="author" value="{{ author }}">
+        {% if rating is not none %}<input type="hidden" name="rating" value="{{ rating }}">{% endif %}
+        <button type="submit" name="different_book" value="yes">Add as a different book</button>
+      </form>
+    {% endif %}
+    <p><a href="{{ url_for('library', _anchor='manual') }}">Back to manual entry</a></p>
+  </section>
+{% endblock %}

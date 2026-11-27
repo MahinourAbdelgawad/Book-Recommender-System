@@ -28,17 +28,20 @@ def work_key(book):
     return book["work_id"] or f"local:{book['id']}"
 
 
-def select_books(db, api_url, api_key, books, seen, dismissed, limit=PAGE_SIZE, reader_id=None):
+def select_books(db, api_url, api_key, books, seen, dismissed, limit=PAGE_SIZE,
+                 reader_id=None, allowed_ids=None):
     known = {book["goodreads_id"]: book for book in db.execute("""
         SELECT id, goodreads_id, work_id, series_key, series_position, bundle FROM books
         WHERE goodreads_id IS NOT NULL
     """)}
-    blocked_works = {work_key(book) for book in books}
+    blocked_works = {work_key(book) for book in books
+                     if book["shelf"] != "to-read" or book["rating"] is not None}
     blocked_works.update(work_key(book) for book in dismissed)
     blocked_works.update(work_key(book) for book in seen)
     blocked_series = {book["series_key"] for book in seen if book["series_key"]}
     excluded = {book_id for book_id, book in known.items()
-                if book["bundle"] or work_key(book) in blocked_works
+                if (allowed_ids is not None and book_id not in allowed_ids)
+                or book["bundle"] or work_key(book) in blocked_works
                 or (book["series_key"] and (book["series_position"] != 1
                                             or book["series_key"] in blocked_series))}
     selected = []

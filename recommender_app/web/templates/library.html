@@ -57,7 +57,6 @@
           <h2 id="library-heading">Your books</h2>
           <span class="muted">{{ books|length }} {{ 'book' if books|length == 1 else 'books' }}</span>
         </div>
-        {% if shelves %}
           <form class="shelf-filter" method="get" action="{{ url_for('library') }}">
             <label for="shelf">Shelf</label>
             <select name="shelf" id="shelf">
@@ -66,15 +65,28 @@
                 <option value="{{ name }}"{% if shelf == name %} selected{% endif %}>{{ name|replace('-', ' ')|capitalize }}</option>
               {% endfor %}
             </select>
-            <button type="submit">Filter</button>
+            <label for="genre">Genre</label>
+            <select name="genre" id="genre">
+              <option value="">All genres</option>
+              {% for key, label in genres.items() %}
+                <option value="{{ key }}"{% if genre == key %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <label for="sort">Sort by</label>
+            <select name="sort" id="sort">
+              {% for key, label in [('updated', 'Recently updated'), ('read', 'Date read'), ('added', 'Date added'), ('title', 'Title')] %}
+                <option value="{{ key }}"{% if sort == key %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit">Apply</button>
           </form>
-        {% endif %}
         {% if books %}
           <ul class="book-list">
             {% for book in books %}
               <li class="book-row shelf-row" id="book-{{ book.id }}">
                 {{ cover(book) }}
                 <div class="book-info">
+                  {% if book.date_read %}<p class="muted">Read {{ book.date_read }}</p>{% endif %}
                   <h3>{{ book.title }}</h3>
                   {% if book.author %}<p>{{ book.author }}</p>{% endif %}
                   {% if book.shelf %}<p class="shelf-label">{{ book.shelf|replace('-', ' ')|capitalize }}</p>{% endif %}
@@ -87,6 +99,10 @@
                   <label class="visually-hidden" for="rating-{{ book.id }}">Your rating for {{ book.title }}</label>
                   <select name="rating" id="rating-{{ book.id }}">{{ rating_options(book.rating, 'Unrated') }}</select>
                   <button class="secondary" type="submit">Save</button>
+                </form>
+                <form method="post" action="{{ url_for('remove_library_book', book_id=book.id) }}">
+                  {{ token() }}
+                  <button class="quiet-button" type="submit" aria-label="Remove {{ book.title }} from library">Remove</button>
                 </form>
               </li>
             {% endfor %}
@@ -114,16 +130,20 @@
 
       <section class="panel manual-panel" id="manual" aria-labelledby="manual-heading">
         <h2 id="manual-heading">Add a book manually</h2>
-        <form method="post" action="{{ url_for('save_manual_book') }}">
+        <form method="post" action="{{ url_for('save_manual_book') }}"
+              data-suggestions-url="{{ url_for('book_suggestions') }}">
           {{ token() }}
           <label for="title">Title</label>
-          <input id="title" name="title" maxlength="250" required>
+          <input id="title" name="title" maxlength="250" autocomplete="off" required>
+          <input type="hidden" name="existing_id">
+          <ul id="manual-suggestions" aria-label="Matching catalog books" hidden></ul>
           <label for="author">Author</label>
           <input id="author" name="author" maxlength="250" required>
           <label for="manual-rating">Your rating</label>
           <select id="manual-rating" name="rating">{{ rating_options(none, 'Leave unrated') }}</select>
           <button type="submit">Add to library</button>
         </form>
+        <script defer src="{{ url_for('static', filename='manual-book.js') }}"></script>
       </section>
     </aside>
   </div>

@@ -27,21 +27,22 @@
         {{ token() }}
         <input type="hidden" name="draft_id" value="{{ draft_id }}">
         <p class="import-action"><button type="submit">Confirm import</button></p>
-        {% if counts.ambiguous %}
-          <input type="checkbox" id="only-review" class="review-toggle">
-          <label for="only-review">Show only rows needing review</label>
-        {% endif %}
+        {% macro import_table(review) %}
         <div class="import-table">
           <table>
             <thead><tr><th scope="col">Book</th><th scope="col">Shelf and rating</th><th scope="col">Import as</th></tr></thead>
             <tbody>
               {% for item in preview %}
                 {% set index = loop.index0 %}
+                {% if not review or item.status == "ambiguous" %}
                 <tr data-status="{{ item.status }}">
                   <td><strong>{{ item.row.title }}</strong>{% if item.row.author %}<br>{{ item.row.author }}{% endif %}</td>
                   <td>{{ (item.row.shelf or 'No shelf')|replace('-', ' ')|capitalize }}<br>
                     {% if item.row.rating %}{{ item.row.rating }} / 5 ★{% else %}Unrated{% endif %}</td>
                   <td>
+                    {% if not review and item.status == 'ambiguous' %}
+                      Review above
+                    {% else %}
                     <label class="visually-hidden" for="row-{{ index }}">Import {{ item.row.title }} as</label>
                     <select name="row-{{ index }}" id="row-{{ index }}">
                       <option value="skip"{% if item.status == 'ambiguous' %} selected{% endif %}>Skip{% if item.status == 'ambiguous' %} (review match){% endif %}</option>
@@ -52,12 +53,25 @@
                         <option value="new"{% if item.status == 'new' %} selected{% endif %}>Add as new book</option>
                       {% endif %}
                     </select>
+                    {% endif %}
                   </td>
                 </tr>
+                {% endif %}
               {% endfor %}
             </tbody>
           </table>
         </div>
+        {% endmacro %}
+        {% if counts.ambiguous %}
+          <h3>Books that need a decision</h3>
+          {{ import_table(true) }}
+        {% else %}
+          <p>No matches need a decision.</p>
+        {% endif %}
+          <details>
+            <summary>See full list ({{ preview|length }} books)</summary>
+            {{ import_table(false) }}
+          </details>
         <p class="import-action"><button type="submit">Confirm import</button></p>
       </form>
     </section>
