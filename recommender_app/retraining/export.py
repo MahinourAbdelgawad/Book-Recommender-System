@@ -52,29 +52,6 @@ def eligible_ratings(ratings, catalog_ids, minimum_per_reader=MIN_READER_RATINGS
     return eligible[counts >= minimum_per_reader].reset_index(drop=True)
 
 
-def export_snapshot(database, bundle_directory, output, minimum_per_reader=MIN_READER_RATINGS):
-    load_bundle(bundle_directory)
-    ratings = read_library_ratings(database)
-    catalog_ids = catalog_book_ids(bundle_directory)
-    eligible = eligible_ratings(ratings, catalog_ids, minimum_per_reader)
-
-    output = Path(output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    snapshot = eligible[["app_user_id", "book_id", "work_id", "rating", "updated_at"]].copy()
-    snapshot["app_user_id"] = snapshot["app_user_id"].astype(str)
-    snapshot["book_id"] = snapshot["book_id"].astype(str)
-    snapshot.to_parquet(output, index=False)
-
-    catalog_ratings = int(ratings["book_id"].astype(str).isin(catalog_ids).sum())
-    return {
-        "output": output,
-        "explicit_ratings": len(ratings),
-        "catalog_ratings_before_work_deduplication": catalog_ratings,
-        "eligible_ratings": len(eligible),
-        "eligible_readers": int(eligible["app_user_id"].nunique()),
-        "minimum_ratings_per_reader": minimum_per_reader,
-    }
-
 
 def main():
     # Keep the old module entry point safe: exports now require the threshold gate.

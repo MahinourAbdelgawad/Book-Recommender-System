@@ -9,3 +9,4 @@ goodreads_interactions_dedup.json.gz
 *.npy
 # Local experiment runs and model bundles
 /instance/ml/
+tests/retraining_lab/runs/
