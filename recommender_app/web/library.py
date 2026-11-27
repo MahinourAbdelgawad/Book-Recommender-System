@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS library (
     book_id INTEGER NOT NULL REFERENCES books(id),
     rating INTEGER CHECK (rating BETWEEN 1 AND 5),
     shelf TEXT,
+    date_read TEXT,
     added_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, book_id)
@@ -103,6 +104,8 @@ def initialize(path):
             db.execute(f"""INSERT INTO library (book_id, rating, shelf, added_at, updated_at)
                            SELECT book_id, rating, {shelf}, added_at, updated_at FROM legacy_library""")
             db.execute("DROP TABLE legacy_library")
+        if "date_read" not in columns("library"):
+            db.execute("ALTER TABLE library ADD COLUMN date_read TEXT")
         if "user_id" not in columns("recommendation_feedback"):
             db.execute("ALTER TABLE recommendation_feedback ADD COLUMN user_id INTEGER REFERENCES users(id)")
         for name, definition in (
@@ -125,31 +128,37 @@ def search_books(db, user_id, query):
                 AND (saved.id = b.id OR (b.work_id != '' AND saved.work_id = b.work_id))
             ORDER BY saved.id LIMIT 1
         )
-        WHERE (b.goodreads_id IS NOT NULL OR l.book_id IS NOT NULL)
-          AND (b.title_key LIKE ? ESCAPE '\\' OR b.author_key LIKE ? ESCAPE '\\')
+        WHERE (b.title_key LIKE ? ESCAPE '\\' OR b.author_key LIKE ? ESCAPE '\\')
         ORDER BY CASE WHEN b.title_key = ? THEN 0 WHEN b.title_key LIKE ? ESCAPE '\\' THEN 1 ELSE 2 END,
-                 b.title_key, b.id
+                 b.title_key, b.goodreads_id IS NULL, b.id
         LIMIT 30
     """, (user_id, user_id, f"%{literal}%", f"%{literal}%", key, f"{literal}%")).fetchall()
 
 
 def library_books(db, user_id):
     return db.execute("""
-        SELECT b.*, l.rating, l.shelf, l.book_id AS saved_id
+        SELECT b.*, l.rating, l.shelf, l.date_read, l.added_at, l.book_id AS saved_id
         FROM library l JOIN books b ON b.id = l.book_id
         WHERE l.user_id = ?
         ORDER BY l.updated_at DESC, b.title_key, b.id
     """, (user_id,)).fetchall()
 
 
+def manual_book_matches(db, title, author):
+    return db.execute("""
+        SELECT id, title, author, year, goodreads_id FROM books
+        WHERE title_key = ? AND author_key = ?
+        ORDER BY goodreads_id IS NULL, id
+    """, (search_key(title), search_key(author))).fetchall()
+
+
 def add_manual_book(db, title, author):
     identity = (search_key(title), search_key(author))
-    existing = db.execute("""
-        SELECT id FROM books WHERE title_key = ? AND author_key = ?
-        ORDER BY goodreads_id IS NULL, id LIMIT 2
-    """, identity).fetchall()
+    existing = manual_book_matches(db, title, author)
     if len(existing) == 1:
         return existing[0]["id"]
+    if existing:
+        raise ValueError("Choose an existing edition before saving")
     db.execute("""
         INSERT INTO books (title, author, title_key, author_key) VALUES (?, ?, ?, ?)
         ON CONFLICT(title_key, author_key) WHERE goodreads_id IS NULL DO NOTHING

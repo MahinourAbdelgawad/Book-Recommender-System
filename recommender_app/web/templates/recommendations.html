@@ -10,11 +10,23 @@
 {% block content %}
   <section class="panel recommendations" aria-labelledby="recommendation-heading">
     <h2 id="recommendation-heading">Books for you</h2>
+    {% if genres and not remaining %}
+      <form method="get" class="shelf-filter" action="{{ url_for('recommendations') }}">
+        <label for="genre">Genre</label>
+        <select id="genre" name="genre">
+          <option value="">All genres</option>
+          {% for key, label in genres.items() %}
+            <option value="{{ key }}"{% if key == genre %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+      </form>
+    {% endif %}
     {% if remaining %}
       <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to see your recommendations.</p>
       <a href="{{ url_for('library') }}">Go to My Library</a>
     {% elif unavailable %}
-      <p>Recommendations are temporarily unavailable. <a href="{{ url_for('recommendations', page=page) }}">Try again</a>.</p>
+      <p>Recommendations are temporarily unavailable. <a href="{{ url_for('recommendations', page=page, genre=genre) }}">Try again</a>.</p>
     {% else %}
       {% if cards %}
         <ul class="book-list">
@@ -24,6 +36,7 @@
               {{ cover(book) }}
               <div class="book-info">
                 <h3>{{ book.title }}</h3>
+                {% if card.to_read %}<span class="shelf-badge">On your To-read shelf</span>{% endif %}
                 {% if book.author or book.year %}
                   <p>{{ book.author }}{% if book.author and book.year %} · {% endif %}{{ book.year }}</p>
                 {% endif %}
@@ -31,9 +44,9 @@
                 <p class="blurb">{{ book.description|striptags|truncate(430) if book.description else 'No description available.' }}</p>
                 <a href="{{ card.goodreads_url }}">View on Goodreads</a>
               </div>
-              <form class="recommendation-actions" action="{{ url_for('recommendation_action', page=page, book_id=book.id) }}" method="post">
+              <form class="recommendation-actions" action="{{ url_for('recommendation_action', page=page, book_id=book.id, genre=genre) }}" method="post">
                 {{ token() }}
-                <button type="submit" name="action" value="to-read">Add to To-read</button>
+                {% if not card.to_read %}<button type="submit" name="action" value="to-read">Add to To-read</button>{% endif %}
                 <button class="quiet-button" type="submit" name="action" value="dismiss">Don’t recommend again</button>
               </form>
             </li>
@@ -45,9 +58,9 @@
         <p>{{ 'You’ve reached the end of your recommendations.' if page > 1 else 'No eligible books found for this library.' }}</p>
       {% endif %}
       <nav class="recommendation-pagination" aria-label="Recommendation pages">
-        {% if page > 1 %}<a href="{{ url_for('recommendations', page=page-1) }}">← Page {{ page-1 }}</a>{% endif %}
+        {% if page > 1 %}<a href="{{ url_for('recommendations', page=page-1, genre=genre) }}">← Page {{ page-1 }}</a>{% endif %}
         <span aria-current="page">Page {{ page }}</span>
-        {% if has_more %}<a href="{{ url_for('recommendations', page=page+1) }}">Page {{ page+1 }} →</a>{% endif %}
+        {% if has_more %}<a href="{{ url_for('recommendations', page=page+1, genre=genre) }}">Page {{ page+1 }} →</a>{% endif %}
       </nav>
     {% endif %}
   </section>

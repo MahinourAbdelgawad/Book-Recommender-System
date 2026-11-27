@@ -1,36 +1,29 @@
 {% extends "base.html" %}
 {% from "book_controls.html" import cover with context %}
 {% block title %}Home{% endblock %}
-{% block heading %}<div class="page-heading"><h1>Home</h1></div>{% endblock %}
+{% block heading %}<div class="page-heading"><h1>Discover books</h1></div>{% endblock %}
 {% block content %}
-<div class="layout">
-  <section class="panel" aria-labelledby="recent-heading">
-    <h2 id="recent-heading">Recently updated books</h2>
-    {% if books %}
-      <ul class="book-list">
+  {% for title, books in rows %}
+    <section class="panel discovery-section" aria-labelledby="discovery-{{ loop.index }}">
+      <h2 id="discovery-{{ loop.index }}">{{ title }}</h2>
+      <ul class="discovery-row" tabindex="0" aria-labelledby="discovery-{{ loop.index }}">
         {% for book in books %}
-        <li class="book-row">
-          {{ cover(book) }}
-          <div class="book-info">
-            <h3><a href="{{ url_for('library', _anchor='book-' ~ book.id) }}">{{ book.title }}</a></h3>
-            {% if book.author %}<p>{{ book.author }}</p>{% endif %}
-          </div>
-        </li>
+          <li>
+            <a href="https://www.goodreads.com/book/show/{{ book.goodreads_id|urlencode }}">
+              {{ cover(book) }}
+              <strong>{{ book.title }}</strong>
+            </a>
+            <span class="muted">{{ book.author }}</span>
+          </li>
         {% endfor %}
       </ul>
-    {% else %}
-      <p>Your library is empty. <a href="{{ url_for('library') }}">Find a book to add</a>.</p>
-    {% endif %}
-  </section>
-  <aside class="panel">
-    <h2>Your reading profile</h2>
-    <p>{{ total }} saved · {{ rated }} rated</p>
-    {% if remaining %}
-      <p>Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }} to unlock recommendations.</p>
-      <p class="more-link"><a class="button-link" href="{{ url_for('library') }}">Go to My Library</a></p>
-    {% else %}
-      <p class="more-link"><a class="button-link" href="{{ url_for('recommendations') }}">See recommendations</a></p>
-    {% endif %}
-  </aside>
-</div>
+    </section>
+  {% else %}
+    <p>The catalog has no books to display yet.</p>
+  {% endfor %}
+  {% if remaining %}
+    <p><a href="{{ url_for('library') }}">Rate {{ remaining }} more {{ 'book' if remaining == 1 else 'books' }}</a> to unlock personalized recommendations.</p>
+  {% else %}
+    <p><a href="{{ url_for('recommendations') }}">See all personalized recommendations</a></p>
+  {% endif %}
 {% endblock %}

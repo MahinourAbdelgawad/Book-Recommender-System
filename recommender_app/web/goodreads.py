@@ -1,4 +1,5 @@
 import csv
+from datetime import date
 import io
 import re
 
@@ -37,13 +38,17 @@ def parse_export(contents):
             if rating and not re.fullmatch(r"[0-5](?:\.0+)?", rating):
                 raise ValueError(f"Invalid star rating near line {reader.line_num}.")
             goodreads_id = field("Book Id")
+            try:
+                date_read = date.fromisoformat(field("Date Read").replace("/", "-")).isoformat()
+            except ValueError:
+                date_read = None
             if goodreads_id and not re.fullmatch(r"[0-9]{1,20}", goodreads_id):
                 raise ValueError(f"Invalid Goodreads book ID near line {reader.line_num}.")
             rows.append(dict(title=title, author=author, goodreads_id=goodreads_id or None,
                              rating=int(rating[0]) if rating and rating[0] != "0" else None,
                              shelf=field("Exclusive Shelf")[:100] or None,
                              isbn=isbn(field("ISBN"))[:20], isbn13=isbn(field("ISBN13"))[:20],
-                             year=field("Year Published")[:8]))
+                             year=field("Year Published")[:8], date_read=date_read))
     except (UnicodeDecodeError, csv.Error) as error:
         raise ValueError("Could not read this file as a UTF-8 Goodreads CSV.") from error
     if not rows:
@@ -85,8 +90,9 @@ def add_imported_book(db, row):
 def save_import_row(db, user_id, book_id, row):
     book_id = library_edition(db, user_id, book_id)
     db.execute("""
-        INSERT INTO library (user_id, book_id, rating, shelf) VALUES (?, ?, ?, ?)
+        INSERT INTO library (user_id, book_id, rating, shelf, date_read) VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(user_id, book_id) DO UPDATE SET
             rating = COALESCE(library.rating, excluded.rating),
-            shelf = COALESCE(library.shelf, excluded.shelf)
-    """, (user_id, book_id, row["rating"], row["shelf"]))
+            shelf = COALESCE(library.shelf, excluded.shelf),
+            date_read = COALESCE(library.date_read, excluded.date_read)
+    """, (user_id, book_id, row["rating"], row["shelf"], row.get("date_read")))
