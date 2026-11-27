@@ -1,33 +1,66 @@
-# Retraining lab
+# Catalog expansion dry lab
 
-Run one scheduler cycle at a time and inspect the result before moving on. The first cycle runs immediately. Later cycles require ten minutes after the last cycle completed, matching the scheduler's delay between cycles. Use `--skip-interval` to test the flow without waiting.
+## Live scheduler run
 
-## Start
-
-From `src/`, use the project's Python environment with its dependencies installed. The lab needs the local v001 bundle, the original cleaned Parquet dataset, and a seeded book catalog in the local SQLite database.
+From `src/` with the virtual environment active:
 
 ```bash
-python tests/retraining_lab/lab.py trial-01 1
+python tests/retraining_lab/live.py live-50
 ```
 
-The lab copies v001 and reads only book metadata from the source database into a separate SQLite file. All accounts and ratings in that file are synthetic. The cleaned dataset is shared for read access. Each cycle starts its own local API and stops it when the cycle finishes. Snapshots, models, logs, locks, and the active pointer live under the ignored `runs/trial-01/` directory.
+This launches isolated Flask, FastAPI, and a continuously running scheduler.
+The simulator signs up 50 accounts and submits their ratings through Flask.
+The scheduler waits a real 60 seconds between cycles by default. Use
+`--interval-seconds 600` for ten minutes. The final cycle also takes the time
+needed for training. Use a fresh run name or a longer interval if your machine
+cannot finish submitting a batch before the next tick.
 
-## Four rounds
+All console output is also written to `runs/live-50/live.log`, with each line
+labeled by process. The launcher stops its three services after five completed
+ticks or on error. The log includes the final snapshot and new-book API checks.
 
-The scheduler threshold is 21 eligible new or changed ratings, meaning strictly above 20. Each reader adds five distinct catalog ratings and twelve outside the catalog. The latter exercise the eligibility filter and do not add new books to the model.
+## Fast simulation
 
-1. **Round 1** adds 10 eligible ratings and 24 outside the catalog. Expect no snapshot or training.
-2. **Round 2** adds 15 eligible ratings and 36 outside the catalog. Expect a training attempt with 25 pending. Activation depends on validation and API checks.
-3. **Round 3** adds nothing. If round 2 activated, expect zero pending. If it was rejected, the 25 ratings remain pending and the scheduler can retry.
-4. **Round 4** adds 25 eligible ratings and 60 outside the catalog. Expect another training attempt. A successful first promotion makes this round compare against a retrained model.
+From `src/`, activate the project virtual environment and run:
 
-After each command returns, send **next** with the run name. We can inspect the round log and any candidate report before you run the same command with the next round number. Training rounds can take longer than ten minutes.
+```bash
+python tests/retraining_lab/lab.py expansion-01
+```
 
-## Read the results
+Use a fresh name for each run. The lab needs the v001 bundle, the original
+cleaned dataset, the catalog feature export, and the local book metadata.
+It copies v001 and book metadata into a fresh database and starts one private
+FastAPI process for the whole run. The accounts and ratings are synthetic.
 
-- `round-N.log` includes fixture counts, API output, training progress, and the scheduler decision.
-- `candidates/vNNN/candidate_report.json` records validation metrics and whether the candidate passed.
-- `active.txt` identifies the lab bundle selected by the API. A rejected candidate leaves it unchanged.
-- A nonzero exit is a failed round. Keep its logs for diagnosis. Use a new run name to start a clean trial.
+The command drives five scheduler ticks with no delay by default. Add
+`--interval-seconds 600` for a ten-minute delay between ticks. This exercises
+the real scheduler's single-cycle path with a lab-controlled clock. The final
+tick performs one real training attempt and may take several minutes.
 
-These rounds exercise normal promotion and rejection if they occur. A quality rejection is a valid result. A forced reload failure is a separate check for the rollback path.
+1. **Empty library.** All 40 books from the Goodreads 2025 releases shelf are loaded with no ratings.
+2. **Early feedback.** Ten readers join. Four submit complete catalog histories, giving 20 eligible ratings.
+3. **Sparse feedback.** Fifteen more readers join. Their new-book ratings are too sparse to qualify.
+4. **Idle tick.** The eligible count remains at 20, below the threshold of 21.
+5. **Expansion attempt.** Another 25 readers join and all 50 complete their histories.
+   The snapshot should contain 350 eligible ratings: 250 for existing books and 100
+   for exactly ten new books. Each of the other 30 new books has one rating and
+   stays below the three-reader minimum.
+
+The lab checks all 40 books through the API. If validation passes, exactly ten
+should become scoreable. If the candidate is rejected, all 40 should remain
+outside the active catalog. Book IDs and titles come from the
+[Goodreads 2025 releases shelf](https://www.goodreads.com/shelf/show/releases-2025).
+
+## Results
+
+Find the ignored output directory at `runs/expansion-01/` beside this guide.
+
+- `summary.json` records each tick, fixture counts, scheduler outcome,
+  per-book snapshot counts, validation reports, and prediction probes.
+- `tick-*.log` captures scheduler output and training progress.
+- `api.log` captures startup, health, prediction, and reload requests.
+- `snapshots/`, `candidates/`, and `active.txt` retain the actual artifacts.
+
+A rejected model should leave the new books unavailable for scoring. A
+successful activation should make them scoreable. The run records which
+outcome occurred. It does not force a passing model or inject a rollback fault.
