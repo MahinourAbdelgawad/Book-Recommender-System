@@ -44,8 +44,6 @@ def run_once(database, dataset, snapshot_dir, output_root, threshold, api_url, a
         raise ActivationError(
             "Unset MODEL_BUNDLE_DIR to allow the scheduler to manage active bundles"
         )
-    if not api_key:
-        raise ActivationError("Set MODEL_API_KEY before starting the retraining scheduler")
 
     active_bundle = active_bundle_path(pointer=pointer)
     LOGGER.info("Loading active bundle and checking model API health")

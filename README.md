@@ -28,7 +28,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Run the model API and Flask app in separate terminals:
+Run the model API, Flask app, and training scheduler in separate terminals:
 
 ```bash
 python -m uvicorn recommender_app.model_service.api:app --host 127.0.0.1 --port 8000
@@ -36,6 +36,13 @@ python -m uvicorn recommender_app.model_service.api:app --host 127.0.0.1 --port 
 
 ```bash
 python -m flask --app recommender_app.web run
+```
+
+For scheduled retraining, keep FastAPI on loopback and leave
+`MODEL_BUNDLE_DIR` unset. `MODEL_API_KEY` is optional for local use.
+
+```bash
+python -m recommender_app.retraining.scheduler --interval-hours 1 --threshold 100
 ```
 
 ## Model
@@ -48,4 +55,4 @@ The app uses Flask for the web interface, FastAPI for model predictions, and SQL
 
 ## Retraining
 
-The scheduler periodically checks for enough new eligible ratings. When the threshold is met, it saves a rating snapshot, trains a separate candidate, and compares it with the active model on validation data. A candidate that passes is activated through the model API. If reload or a prediction check fails, the scheduler restores the previous model. The threshold must be chosen when starting the scheduler; automatic activation also requires the same `MODEL_API_KEY` for the model API, Flask app, and scheduler, with `MODEL_BUNDLE_DIR` unset.
+The scheduler periodically checks for enough new eligible ratings. When the threshold is met, it saves a rating snapshot, trains a separate candidate, and compares it with the active model on validation data. A candidate that passes is activated through the model API. If reload or a prediction check fails, the scheduler restores the previous model. Choose the threshold when starting the scheduler.

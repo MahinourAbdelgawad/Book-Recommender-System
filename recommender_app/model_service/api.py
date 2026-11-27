@@ -49,10 +49,15 @@ def check_key(x_api_key: Annotated[str | None, Header()] = None):
         raise HTTPException(status_code=401, detail="Invalid model API key")
 
 
-def check_reload_key(x_api_key: Annotated[str | None, Header()] = None):
+def authorize_reload(request: Request, x_api_key: Annotated[str | None, Header()] = None):
     expected = os.environ.get("MODEL_API_KEY")
     if not expected:
-        raise HTTPException(status_code=503, detail="Model reload is disabled without MODEL_API_KEY")
+        loopback = {"127.0.0.1", "::1"}
+        if (request.client is None or request.client.host not in loopback
+                or request.url.hostname not in loopback | {"localhost"}
+                or request.headers.get("origin")):
+            raise HTTPException(status_code=403, detail="Unauthenticated model reload requires a local client")
+        return
     if not hmac.compare_digest((x_api_key or "").encode(), expected.encode()):
         raise HTTPException(status_code=401, detail="Invalid model API key")
 
@@ -79,7 +84,7 @@ def create_app(bundle_dir: Path | None = None) -> FastAPI:
         return {"status": "ok", "model_version": predictor.version,
                 "catalog_size": len(predictor.books)}
 
-    @app.post("/internal/reload-model", dependencies=[Depends(check_reload_key)])
+    @app.post("/internal/reload-model", dependencies=[Depends(authorize_reload)])
     def reload_model(request: Request):
         # Construct fully before swapping so a broken candidate leaves the old predictor live.
         with reload_lock:

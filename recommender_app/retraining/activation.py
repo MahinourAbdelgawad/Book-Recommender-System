@@ -44,7 +44,10 @@ def _api_json(api_url, path, api_key, *, method="GET", body=None, timeout=10):
     data = json.dumps(body).encode("utf-8") if body is not None else None
     request = Request(
         api_url.rstrip("/") + path,
-        headers={"X-API-Key": api_key, **({"Content-Type": "application/json"} if data else {})},
+        headers={
+            **({"X-API-Key": api_key} if api_key else {}),
+            **({"Content-Type": "application/json"} if data else {}),
+        },
         data=data,
         method=method,
     )
@@ -106,8 +109,6 @@ def activate_candidate(candidate_bundle, output_root, api_url, api_key, pointer=
         raise ActivationError(
             "Unset MODEL_BUNDLE_DIR before activation; it overrides the managed active pointer"
         )
-    if not api_key:
-        raise ActivationError("MODEL_API_KEY is required to activate a bundle")
     candidate = Path(candidate_bundle).resolve()
     root = Path(output_root).resolve()
     if candidate == root or root not in candidate.parents:
